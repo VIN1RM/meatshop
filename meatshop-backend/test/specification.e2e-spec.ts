@@ -214,14 +214,16 @@ const enabled = ['meatshop_spec_test_330', 'meatshop_gaps_test_330'].includes(
 
   it('exports only the authenticated users records without session or password secrets', async () => {
     const response = await request(app.getHttpServer())
-      .get('/users/me/export')
+      .get(`/users/me/export?unit_id=${unit.id}&format=json`)
       .set('Authorization', `Bearer ${aliceToken}`)
       .expect(200);
     expect(response.headers['cache-control']).toBe('no-store');
     expect(response.body.data.profile[0].email).toBe(alice.email);
     expect(JSON.stringify(response.body)).not.toContain(bob.email);
     expect(JSON.stringify(response.body)).not.toContain('private-hash');
-    await request(app.getHttpServer()).get('/users/me/export').expect(401);
+    await request(app.getHttpServer())
+      .get(`/users/me/export?unit_id=${unit.id}&format=json`)
+      .expect(401);
   });
 
   it('preserves support conversation and rejects access by another customer', async () => {

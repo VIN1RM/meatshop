@@ -117,7 +117,7 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
     expect(row.phone).not.toContain('11987654321');
     expect(row.cpf_hash).toBe(cpfBlindIndex('12345678909'));
     const result = await request(app.getHttpServer())
-      .get('/users/me/export')
+      .get(`/users/me/export?unit_id=${unit.id}&format=json`)
       .auth(token, { type: 'bearer' })
       .expect(200);
     expect(JSON.stringify(result.body)).toContain('12345678909');
@@ -468,7 +468,7 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
     expect(Number(item.unit_price)).toBe(40);
     expect(order.delivery_fee).toBe(0);
     expect(order.payment_due_at).toBeTruthy();
-    expect(order.delivery_code).toMatch(/^\d{6}$/);
+    expect(order.delivery_code).toBeNull();
     await db.query("UPDATE orders SET payment_due_at=now()-interval '1 minute' WHERE id=$1", [
       order.id,
     ]);
@@ -513,21 +513,37 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
         .auth(token, { type: 'bearer' })
         .send({ status })
         .expect(200);
+    const ready = await request(app.getHttpServer())
+      .get(`/orders/${order.id}`)
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+    expect(ready.body.delivery_code).toMatch(/^\d{6}$/);
+    const unpaid = await request(app.getHttpServer())
+      .patch(`/orders/${order.id}/status`)
+      .auth(token, { type: 'bearer' })
+      .send({ status: 'DELIVERED', code: ready.body.delivery_code })
+      .expect(400);
+    expect(unpaid.body.code).toBe('PICKUP_PAYMENT_REQUIRED');
+    await request(app.getHttpServer())
+      .post(`/payments/orders/${order.id}/receipt`)
+      .auth(token, { type: 'bearer' })
+      .send({ amount: Number(order.total_amount), reference: `pickup-${order.id}` })
+      .expect(201);
     await request(app.getHttpServer())
       .patch(`/orders/${order.id}/status`)
       .auth(token, { type: 'bearer' })
       .send({ status: 'DELIVERED' })
       .expect(400);
-    const wrong = order.delivery_code === '000000' ? '111111' : '000000';
+    const wrong = ready.body.delivery_code === '000000' ? '111111' : '000000';
     await request(app.getHttpServer())
       .patch(`/orders/${order.id}/status`)
       .auth(token, { type: 'bearer' })
       .send({ status: 'DELIVERED', code: wrong })
-      .expect(401);
+      .expect(400);
     const delivered = await request(app.getHttpServer())
       .patch(`/orders/${order.id}/status`)
       .auth(token, { type: 'bearer' })
-      .send({ status: 'DELIVERED', code: order.delivery_code })
+      .send({ status: 'DELIVERED', code: ready.body.delivery_code })
       .expect(200);
     expect(delivered.body.delivery_code_hash).toBeUndefined();
     expect(delivered.body.status).toBe('DELIVERED');
