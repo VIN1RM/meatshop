@@ -301,8 +301,9 @@ const enabled = process.env.GEO_TEST_DATABASE === 'meatshop_geo_test';
       dataSource.getRepository(Order),
       dataSource.getRepository(OrderStatusHistory),
       { notifyCustomerOfStatusChange: async () => undefined } as never,
+      { verify: async () => undefined } as never,
     );
-    await transition.transition(stale, OrderStatus.OUT_FOR_DELIVERY, courier.id);
+    await transition.transition(stale, OrderStatus.OUT_FOR_DELIVERY, courier.id, '123456');
     const current = await dataSource
       .getRepository(Order)
       .createQueryBuilder('o')
