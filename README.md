@@ -7,6 +7,13 @@ Termos e privacidade 3.2.0: consulte [arquitetura, contratos e implantação](./
 
 Pagamentos: consulte [configuração e homologação Mercado Pago](./docs/PAYMENTS_SETUP.md).
 
+Ambiente hospedado de testes:
+
+- Painel web: [https://meatshop-five.vercel.app](https://meatshop-five.vercel.app)
+- API: [https://meatshop-api-qvt6.onrender.com](https://meatshop-api-qvt6.onrender.com)
+- Health check pelo proxy: [https://meatshop-five.vercel.app/api/health](https://meatshop-five.vercel.app/api/health)
+- Operação e renovação dos serviços gratuitos: [docs/DEPLOY_VERCEL_RENDER.md](./docs/DEPLOY_VERCEL_RENDER.md)
+
 ```powershell
 git clone --branch develop --single-branch https://github.com/VIN1RM/meatshop.git
 cd meatshop
@@ -270,7 +277,11 @@ Dashboards sugeridos:
 
 # 📄 Docs Extras
 
-Em `/docs` → documentação formal em PDF.
+Em `/docs` → documentação formal em PDF e guias operacionais.
+
+- [Deploy de testes na Vercel e Render](./docs/DEPLOY_VERCEL_RENDER.md)
+- [Configuração e homologação do Mercado Pago](./docs/PAYMENTS_SETUP.md)
+- [Termos, privacidade e arquitetura](./docs/TERMS_AND_PRIVACY.md)
 
 ---
 

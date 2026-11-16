@@ -60,6 +60,7 @@ Thumbs.db
 # Markdown documentation
 *.[mM][dD]
 !docs/PAYMENTS_SETUP.md
+!docs/DEPLOY_VERCEL_RENDER.md
 ![rR][eE][aA][dD][mM][eE]*.[mM][dD]
 ![cC][hH][aA][nN][gG][eE][lL][oO][gG]*.[mM][dD]
 ![rR][eE][lL][eE][aA][sS][eE][sS]*.[mM][dD]
