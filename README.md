@@ -8,7 +8,7 @@ Termos e privacidade 3.2.0: consulte [arquitetura, contratos e implantação](./
 Pagamentos: consulte [configuração e homologação Mercado Pago](./docs/PAYMENTS_SETUP.md).
 
 ```powershell
-git clone --branch develop --single-branch https://github.com/geovannaffelixx/meatshop.git
+git clone --branch develop --single-branch https://github.com/VIN1RM/meatshop.git
 cd meatshop
 docker compose up -d --build
 ```
@@ -16,10 +16,10 @@ docker compose up -d --build
 O assistente de IA também requer o repositório `meatshop-chatbot` clonado ao lado deste e a
 variável local `GROQ_API_KEY`. Consulte [SETUP.md](./SETUP.md).
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/geovannaffelixx/meatshop/ci.yml?label=CI%2FCD&logo=github)
-![Último Commit](https://img.shields.io/github/last-commit/geovannaffelixx/meatshop)
-![Linguagens](https://img.shields.io/github/languages/top/geovannaffelixx/meatshop)
-![Tamanho](https://img.shields.io/github/repo-size/geovannaffelixx/meatshop)
+![Build Status](https://img.shields.io/github/actions/workflow/status/VIN1RM/meatshop/ci.yml?label=CI%2FCD&logo=github)
+![Último Commit](https://img.shields.io/github/last-commit/VIN1RM/meatshop)
+![Linguagens](https://img.shields.io/github/languages/top/VIN1RM/meatshop)
+![Tamanho](https://img.shields.io/github/repo-size/VIN1RM/meatshop)
 
 ![Backend NestJS](https://img.shields.io/badge/NestJS-Backend-red?logo=nestjs)
 ![Frontend NextJS](https://img.shields.io/badge/Next.js-Frontend-black?logo=next.js)
@@ -118,7 +118,7 @@ Local: `/meatshop-main`
 ## 2️⃣ Clonar
 
 ```
-git clone https://github.com/geovannaffelixx/meatshop
+git clone https://github.com/VIN1RM/meatshop
 cd meatshop
 ```
 

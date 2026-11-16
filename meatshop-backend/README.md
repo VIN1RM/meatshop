@@ -16,10 +16,10 @@ O mobile 3.5.0 usa `GET /delivery/me/exports` para relatórios pessoais do entre
 
 Consulte [RELEASES.md](./RELEASES.md), [CHANGELOG.md](./CHANGELOG.md), a [documentação web](../docs/EXPORTACOES_3_5_0.md) e a [integração mobile](../docs/EXPORTACOES_MOBILE_3_5_0.md).
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/geovannaffelixx/meatshop/ci.yml?label=CI%2FCD&logo=github)
-![Último Commit](https://img.shields.io/github/last-commit/geovannaffelixx/meatshop)
-![Linguagem](https://img.shields.io/github/languages/top/geovannaffelixx/meatshop)
-![Tamanho](https://img.shields.io/github/repo-size/geovannaffelixx/meatshop)
+![Build Status](https://img.shields.io/github/actions/workflow/status/VIN1RM/meatshop/ci.yml?label=CI%2FCD&logo=github)
+![Último Commit](https://img.shields.io/github/last-commit/VIN1RM/meatshop)
+![Linguagem](https://img.shields.io/github/languages/top/VIN1RM/meatshop)
+![Tamanho](https://img.shields.io/github/repo-size/VIN1RM/meatshop)
 
 ![NestJS](https://img.shields.io/badge/NestJS-Backend-red?logo=nestjs)
 ![PostgreSQL 17](https://img.shields.io/badge/PostgreSQL-17-blue?logo=postgresql)
