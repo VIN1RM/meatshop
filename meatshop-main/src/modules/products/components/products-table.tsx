@@ -12,7 +12,7 @@ import { ReusableTable, type TableColumn } from "@/shared/components/reusable-ta
 import type { PageResult } from "@/shared/hooks/use-server-list";
 import { ProductDetailsDialog } from "./product-details-dialog";
 import { DataPagination } from "@/shared/components/data-pagination";
-import { formatCurrency } from "@/shared/lib/formatters";
+import { formatCurrency, formatQuantity } from "@/shared/lib/formatters";
 import { AlertTriangle } from "lucide-react";
 
 type Product = {
@@ -67,7 +67,7 @@ export function ProductsTable({
     { id: 'name', header: 'Produto', accessor: product => <><span className="block font-semibold text-slate-900">{product.name}</span><span className="text-xs text-slate-500">#{product.id}</span></> },
     { id: 'category', header: 'Categoria', accessor: product => product.category_name ?? '—' },
     { id: 'brand', header: 'Marca', accessor: product => product.brand ?? '—' },
-    { id: 'stock', header: 'Estoque', accessor: product => <span className="flex items-center gap-1.5 whitespace-nowrap">{product.stock_quantity} {product.unit_of_measure}{product.stock_quantity <= product.stock_min_quantity && <span title="Estoque abaixo do mínimo" aria-label="Estoque abaixo do mínimo" className="text-amber-700"><AlertTriangle className="size-4" /></span>}</span> },
+    { id: 'stock', header: 'Estoque', accessor: product => <span className="flex items-center gap-1.5 whitespace-nowrap">{formatQuantity(product.stock_quantity, product.unit_of_measure)}{Number(product.stock_quantity) <= Number(product.stock_min_quantity) && <span title="Estoque abaixo do mínimo" aria-label="Estoque abaixo do mínimo" className="text-amber-700"><AlertTriangle className="size-4" /></span>}</span> },
     { id: 'price', header: 'Preço', accessor: product => formatCurrency(product.price), className: 'whitespace-nowrap font-medium' },
     { id: 'status', header: 'Status', accessor: product => <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${product.active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>{product.active ? 'Ativo' : 'Inativo'}</span> },
     { id: 'actions', header: 'Ações', textAlign: 'end', accessor: product => <button type="button" onClick={() => router.push(`/products/${product.id}`)} className="font-semibold text-red-700 hover:underline">Editar</button> },

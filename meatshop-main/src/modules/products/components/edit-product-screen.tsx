@@ -109,7 +109,7 @@ export function EditProductScreen() {
       await apiPatch(`/products/${product.id}`, {
         name: product.name,
         description: product.description?.trim() || null,
-        price: product.price,
+        price: Number(product.price),
         unit_of_measure: product.unit_of_measure,
         active: product.active,
         category_id: product.category_id,
@@ -120,8 +120,8 @@ export function EditProductScreen() {
       const minimumChanged = savedStock && Number(stock.min_quantity) !== Number(savedStock.min_quantity)
       if (quantityChanged || minimumChanged) {
         const updated = await apiPatch(`/products/${product.id}/stock`, {
-          ...(quantityChanged ? { quantity: stock.quantity, expected_quantity: Number(savedStock.quantity) } : {}),
-          ...(minimumChanged ? { min_quantity: stock.min_quantity } : {}),
+          ...(quantityChanged ? { quantity: Number(stock.quantity), expected_quantity: Number(savedStock.quantity) } : {}),
+          ...(minimumChanged ? { min_quantity: Number(stock.min_quantity) } : {}),
         })
         setStock(updated)
         setSavedStock(updated)
@@ -238,7 +238,7 @@ export function EditProductScreen() {
           <fieldset className="border border-gray-400 rounded-md px-3 py-2">
             <legend id="legend-edit-product-screen-8255" className="text-gray-600 font-medium px-1 text-sm">Unidade de medida<RequiredMark /></legend>
             <select aria-labelledby="legend-edit-product-screen-8255"
-              value={product.unit_of_measure}
+              value={product.unit_of_measure.toUpperCase()}
               onChange={(e) => handleChange("unit_of_measure", e.target.value)}
               className="input"
               required
@@ -263,7 +263,9 @@ export function EditProductScreen() {
                   type="number"
                   min={0}
                   step="0.001"
-                  value={stock.quantity}
+                  value={Number(stock.quantity)}
+                  inputMode="decimal"
+                  lang="pt-BR"
                   onChange={(e) =>
                     setStock({ ...stock, quantity: Number(e.target.value) || 0 })
                   }
@@ -277,7 +279,9 @@ export function EditProductScreen() {
                   type="number"
                   min={0}
                   step="0.001"
-                  value={stock.min_quantity}
+                  value={Number(stock.min_quantity)}
+                  inputMode="decimal"
+                  lang="pt-BR"
                   onChange={(e) =>
                     setStock({ ...stock, min_quantity: Number(e.target.value) || 0 })
                   }
@@ -296,7 +300,9 @@ export function EditProductScreen() {
                 type="number"
                 min={0.01}
                 step="0.01"
-                value={product.price}
+                value={Number(product.price)}
+                inputMode="decimal"
+                lang="pt-BR"
                 onChange={(e) => handleChange("price", parseFloat(e.target.value) || 0)}
                 className="input"
                 placeholder="Ex.: 89,90"

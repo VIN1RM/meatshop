@@ -6,9 +6,12 @@ import { resetApiCache } from '@/shared/lib/query-cache';
 import { toast } from '@/shared/lib/toast';
 const replace = jest.fn();
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace }) }));
-jest.mock('@/shared/providers/panel-access-provider', () => ({ usePanelAccess: () => ({ user: { id: 1, name: 'Ana Silva', email: 'ana@example.com', global_role: 'USER' }, selectedMembership: { unit_name: 'Loja A', role: 'MANAGER' } }) }));
+jest.mock('@/shared/providers/panel-access-provider', () => ({ usePanelAccess: () => ({ user: { id: 1, name: 'Ana Silva', email: 'ana@example.com', avatar_url: '/uploads/avatar.jpg', global_role: 'USER' }, selectedMembership: { unit_name: 'Loja A', role: 'MANAGER' } }) }));
 jest.mock('@/shared/components/user-avatar', () => ({ UserAvatar: ({ name }: { name: string }) => <span>{name}</span> }));
-jest.mock('@/shared/lib/api', () => ({ apiPost: jest.fn() }));
+jest.mock('@/shared/lib/api', () => ({ apiPost: jest.fn(), resolveAssetUrl: (src?: string) => src ? `http://localhost:3001${src}` : '' }));
+jest.mock('next/image', () => ({ __esModule: true, default: function MockImage(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+  return React.createElement('img', { src: props.src, alt: props.alt, onLoad: props.onLoad, onError: props.onError });
+} }));
 jest.mock('@/shared/lib/query-cache', () => ({ resetApiCache: jest.fn() }));
 jest.mock('@/shared/lib/toast', () => ({ toast: { error: jest.fn() } }));
 
@@ -44,6 +47,15 @@ describe('Header profile drawer', () => {
     expect(localStorage.getItem('meatshop:selected-unit-id')).toBeNull();
     expect(localStorage.getItem('currentUser')).toBeNull();
     expect(replace).toHaveBeenCalledWith('/login');
+  });
+  it('opens the profile photo and closes only the preview with Escape', async () => {
+    const trigger = document.querySelector<HTMLButtonElement>('[aria-label="Ampliar foto de ana silva"]')!;
+    await act(async () => trigger.click());
+    const preview = Array.from(document.querySelectorAll('[role="dialog"]')).find(dialog => dialog.querySelector('img'))!;
+    expect(preview.querySelector('img')?.getAttribute('src')).toBe('http://localhost:3001/uploads/avatar.jpg');
+    await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+    expect(document.querySelector('img')).toBeNull();
+    expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Meu perfil');
   });
   it('keeps the session and permits retry when logout fails', async () => {
     localStorage.setItem('meatshop:selected-unit-id', '6');

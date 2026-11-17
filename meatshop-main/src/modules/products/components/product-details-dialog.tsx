@@ -7,7 +7,7 @@ import { DetailsDialog } from '@/shared/components/details-dialog';
 import { DataSkeleton } from '@/shared/components/data-skeleton';
 import { useApiQuery } from '@/shared/hooks/use-api-query';
 import { resolveAssetUrl } from '@/shared/lib/api';
-import { formatCurrency } from '@/shared/lib/formatters';
+import { formatCurrency, formatQuantity, formatUnit } from '@/shared/lib/formatters';
 import { Button } from '@/shared/components/ui/button';
 
 type ProductDetails = {
@@ -33,11 +33,11 @@ export function ProductDetailsDialog({ productId, onClose }: { productId: number
             {images.length > 1 && <div className="flex gap-2 overflow-x-auto pb-1">{images.map((url, index) => <button key={url} type="button" aria-label={`Ver imagem ${index + 1}`} aria-pressed={selected === index} onClick={() => setSelected(index)} className={`size-16 shrink-0 overflow-hidden rounded-lg border-2 focus-visible:outline-red-600 ${selected === index ? 'border-red-600' : 'border-slate-200'}`}><Image unoptimized src={resolveAssetUrl(url)} alt="" width={64} height={64} className="size-full object-cover" /></button>)}</div>}
           </div>
           <div className="space-y-5">
-            <div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.product.active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>{data.product.active ? 'Ativo' : 'Inativo'}</span><p className="mt-4 text-3xl font-bold text-slate-950">{formatCurrency(data.product.price)}<span className="ml-1 text-sm font-normal text-slate-500">/ {data.product.unit_of_measure}</span></p></div>
+            <div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${data.product.active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>{data.product.active ? 'Ativo' : 'Inativo'}</span><p className="mt-4 text-3xl font-bold text-slate-950">{formatCurrency(data.product.price)}<span className="ml-1 text-sm font-normal text-slate-500">/ {formatUnit(data.product.unit_of_measure)}</span></p></div>
             <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-600">{data.product.description || 'Sem descrição cadastrada.'}</p>
             <dl className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 text-sm">{[
               ['Categoria', data.product.category?.name ?? '—'], ['Marca', data.product.brand ?? '—'],
-              ['Em estoque', `${data.stock?.quantity ?? 0} ${data.product.unit_of_measure}`], ['Estoque mínimo', `${data.stock?.min_quantity ?? 0} ${data.product.unit_of_measure}`],
+              ['Em estoque', formatQuantity(data.stock?.quantity, data.product.unit_of_measure)], ['Estoque mínimo', formatQuantity(data.stock?.min_quantity, data.product.unit_of_measure)],
             ].map(([label, value]) => <div key={label}><dt className="text-slate-500">{label}</dt><dd className="mt-1 break-words font-semibold text-slate-900">{value}</dd></div>)}</dl>
           </div>
         </div>}

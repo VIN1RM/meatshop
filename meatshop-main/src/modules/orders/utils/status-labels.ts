@@ -23,6 +23,23 @@ export const DELIVERY_TYPE_LABELS: Record<string, string> = {
   PICKUP: "Retirada no balcão",
 };
 
+export const DELIVERY_STATUS_LABELS: Record<string, string> = {
+  WAITING_DELIVERY_PERSON: "Aguardando entregador",
+  PICKUP: "Indo buscar",
+  ON_THE_WAY: "Em rota",
+  DELIVERED: "Entregue",
+};
+
+export function deliveryStatusLabel(status: string): string {
+  return DELIVERY_STATUS_LABELS[status] ?? "Não informado";
+}
+
+export function cancellationReasonLabel(reason: string | null | undefined): string {
+  if (!reason?.trim()) return "Não informado";
+  if (reason.trim() === "Payment deadline expired") return "Prazo de pagamento expirado";
+  return reason;
+}
+
 export function orderStatusLabel(status: string, deliveryType?: string): string {
   if (deliveryType === "PICKUP") {
     if (status === "READY") return "Pronto para retirada";

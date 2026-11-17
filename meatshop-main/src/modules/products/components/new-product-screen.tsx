@@ -239,6 +239,8 @@ export function NewProductScreen() {
             </legend>
             <input aria-labelledby="legend-new-product-screen-8746"
               type="number"
+              inputMode="decimal"
+              lang="pt-BR"
               value={form.initialQuantity}
               min={0}
               step="0.001"
@@ -252,6 +254,8 @@ export function NewProductScreen() {
             <legend id="legend-new-product-screen-9300" className="px-1 text-sm font-medium text-slate-600">Estoque mínimo</legend>
             <input aria-labelledby="legend-new-product-screen-9300"
               type="number"
+              inputMode="decimal"
+              lang="pt-BR"
               min={0}
               step="0.001"
               value={form.initialMinimumQuantity}
@@ -267,6 +271,8 @@ export function NewProductScreen() {
             <legend id="legend-new-product-screen-9904" className="px-1 text-sm font-medium text-slate-600">Preço do produto<RequiredMark /></legend>
             <input aria-labelledby="legend-new-product-screen-9904"
               type="number"
+              inputMode="decimal"
+              lang="pt-BR"
               min={0.01}
               step="0.01"
               value={form.price}

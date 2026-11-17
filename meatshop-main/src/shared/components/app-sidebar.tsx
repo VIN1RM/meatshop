@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadio
 import { unitPermissions, type UnitPermission } from '@/shared/auth/panel-access';
 import { resolveAssetUrl } from '@/shared/lib/api';
 import { usePanelAccess } from '@/shared/providers/panel-access-provider';
+import { ImagePreview } from '@/shared/components/image-preview';
 
 type NavItem = {
   title: string;
@@ -190,9 +191,6 @@ export function AppSidebar(props: AppSidebarProps) {
   }
 
   const unitCard = <>
-    <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-red-50 text-red-700">
-      {unitLogo ? <Image unoptimized src={unitLogo} alt="" width={40} height={40} className="size-10 object-contain p-1" /> : <Building2 className="size-5" />}
-    </span>
     <span className="min-w-0 flex-1 text-left group-data-[collapsible=icon]:hidden">
       <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500">Unidade atual</span>
       <span className="mt-0.5 block break-words text-sm font-semibold leading-snug text-slate-900">{selectedMembership?.unit_name ?? 'Painel de gestão'}</span>
@@ -206,9 +204,15 @@ export function AppSidebar(props: AppSidebarProps) {
         <Image src="/logoEscuraAnimais.png" alt="MeatShop" width={688} height={514} className="h-14 w-auto object-contain" priority />
         <button type="button" aria-label="Fechar menu" onClick={() => setOpenMobile(false)} className="absolute right-0 rounded-lg p-2 text-slate-500 hover:bg-slate-100 focus-visible:outline-red-600 md:hidden"><X className="size-4" /></button>
       </div>
+      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
+        <ImagePreview src={unitLogo} title={`Foto da unidade ${selectedMembership?.unit_name ?? ''}`.trim()} className="size-10">
+          <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-red-50 text-red-700">
+            {unitLogo ? <Image unoptimized src={unitLogo} alt="" width={40} height={40} className="size-10 object-contain p-1" /> : <Building2 className="size-5" />}
+          </span>
+        </ImagePreview>
       {memberships.length > 1 ? <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button type="button" aria-label="Trocar unidade" className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition-colors hover:border-red-200 hover:bg-red-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
+          <button type="button" aria-label="Trocar unidade" className="flex min-w-0 flex-1 items-center gap-3 rounded-lg text-left transition-colors hover:bg-red-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 group-data-[collapsible=icon]:hidden">
             {unitCard}
           </button>
         </DropdownMenuTrigger>
@@ -220,7 +224,8 @@ export function AppSidebar(props: AppSidebarProps) {
             </DropdownMenuRadioItem>)}
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
-      </DropdownMenu> : <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-2.5 group-data-[collapsible=icon]:p-0">{unitCard}</div>}
+      </DropdownMenu> : unitCard}
+      </div>
     </SidebarHeader>
     <SidebarContent className="gap-1 px-1">
       <SidebarGroup className="py-0"><SidebarGroupContent><SidebarMenu>{canSee(dashboardItem) && itemLink(dashboardItem)}</SidebarMenu></SidebarGroupContent></SidebarGroup>

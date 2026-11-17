@@ -16,6 +16,8 @@ import { apiPatch } from "@/shared/lib/api"
 import {
   DELIVERY_TYPE_LABELS,
   orderStatusLabel,
+  deliveryStatusLabel,
+  cancellationReasonLabel,
   paymentMethodLabel,
   canCompletePickup,
   PAYMENT_STATUS_LABELS,
@@ -31,7 +33,7 @@ import {
 import { Input } from "@/shared/components/ui/input"
 import { Textarea } from "@/shared/components/ui/textarea"
 import { Spinner } from "@/shared/components/ui/spinner"
-import { formatCurrency, formatDateTime } from "@/shared/lib/formatters"
+import { formatCurrency, formatDateTime, formatQuantity } from "@/shared/lib/formatters"
 
 type OrderItem = {
   id: number
@@ -243,7 +245,7 @@ export function OrderDetailScreen({ orderId }: OrderDetailScreenProps) {
                 <tr key={item.id} className="border-b border-gray-200">
                   <td className="p-2">{item.product_id}</td>
                   <td className="p-2">{item.product_name}</td>
-                  <td className="p-2 text-center">{item.quantity}</td>
+                  <td className="p-2 text-center">{formatQuantity(item.quantity)}</td>
                   <td className="p-2 text-center">{formatCurrency(item.unit_price)}</td>
                   <td className="p-2 text-center">
                     {formatCurrency(item.quantity * item.unit_price)}
@@ -261,12 +263,12 @@ export function OrderDetailScreen({ orderId }: OrderDetailScreenProps) {
             </h3>
             <p><strong>PEDIDO:</strong> {orderStatusLabel(order.status, order.delivery_type)}</p>
             {order.delivery_type === "DELIVERY" && order.delivery_status && (
-              <p><strong>ENTREGA:</strong> {order.delivery_status}</p>
+              <p><strong>ENTREGA:</strong> {deliveryStatusLabel(order.delivery_status)}</p>
             )}
             {order.status === "CANCELLED" && (
               <>
                 <p><strong>Cancelado em:</strong> {formatDateTime(order.cancelled_at)}</p>
-                <p><strong>MOTIVO:</strong> {order.cancellation_reason ?? "-"}</p>
+                <p><strong>MOTIVO:</strong> {cancellationReasonLabel(order.cancellation_reason)}</p>
               </>
             )}
           </div>

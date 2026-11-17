@@ -24,6 +24,22 @@ export function formatDate(value: string | null | undefined) {
   return formatDateValue(value);
 }
 
+const quantityFormatter = new Intl.NumberFormat('pt-BR', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 3,
+});
+
+export function formatUnit(unit: string | null | undefined): string {
+  return unit?.trim().toLowerCase() ?? '';
+}
+
+export function formatQuantity(value: number | string | null | undefined, unit?: string | null): string {
+  const quantity = Number(value ?? 0);
+  const formatted = Number.isFinite(quantity) ? quantityFormatter.format(quantity) : 'Não informado';
+  const symbol = formatUnit(unit);
+  return symbol ? `${formatted} ${symbol}` : formatted;
+}
+
 export function formatDateTime(value: string | null | undefined) {
   return formatDateValue(value, { dateStyle: 'short', timeStyle: 'short' });
 }

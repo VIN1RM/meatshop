@@ -38,7 +38,7 @@ import { AlertTriangle, ArrowRight, PackageOpen, ShoppingBag, TrendingUp } from 
 import Autoplay from "embla-carousel-autoplay"
 
 const chartConfig = {
-  vendas: { label: "Receita confirmada", color: "#525252" },
+  vendas: { label: "Recebimentos líquidos", color: "#525252" },
 } satisfies ChartConfig
 
 const WEEKDAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
@@ -228,7 +228,12 @@ export function DashboardScreen() {
                     <BarChart accessibilityLayer data={chartData}>
                       <CartesianGrid vertical={false} />
                       <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} />
-                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel formatter={(value) => (
+                        <div className="flex w-full items-center justify-between gap-4">
+                          <span className="text-muted-foreground">Recebimentos líquidos</span>
+                          <span className="whitespace-nowrap font-semibold tabular-nums">{formatCurrency(Number(value))}</span>
+                        </div>
+                      )} />} />
                       <Bar dataKey="vendas" fill="var(--color-vendas)" radius={8} />
                     </BarChart>
                   </ChartContainer>

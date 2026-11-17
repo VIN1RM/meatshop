@@ -7,6 +7,7 @@ import { ArrowRight, Building2, ChevronDown, LogOut, ShieldCheck, UserRound } fr
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/components/ui/sheet';
 import { Button } from '@/shared/components/ui/button';
 import { UserAvatar } from '@/shared/components/user-avatar';
+import { ImagePreview } from '@/shared/components/image-preview';
 import { usePanelAccess } from '@/shared/providers/panel-access-provider';
 import { apiPost } from '@/shared/lib/api';
 import { resetApiCache } from '@/shared/lib/query-cache';
@@ -58,7 +59,9 @@ export function UserProfileDrawer() {
         </SheetHeader>
         <div className="space-y-5 p-6">
           <section className="flex flex-col items-center gap-4 rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
-            <UserAvatar name={user.name} src={user.avatar_url} size="lg" />
+            <ImagePreview src={user.avatar_url} title={`Foto de ${user.name}`} className="rounded-full">
+              <UserAvatar name={user.name} src={user.avatar_url} size="lg" />
+            </ImagePreview>
             <div><p className="break-words font-semibold text-slate-900">{user.name}</p><p className="mt-1 break-all text-sm text-slate-500">{user.email}</p></div>
           </section>
           <dl className="space-y-5 px-1 text-sm">
