@@ -57,6 +57,14 @@ import { OrderStatusHistory } from '../src/orders/entities/order-status-history.
 import { PaymentMethod } from '../src/orders/enums/payment-method.enum';
 import { PaymentStatus } from '../src/orders/enums/payment-status.enum';
 import { OrderStatus } from '../src/orders/enums/order-status.enum';
+import { createHmac } from 'crypto';
+import { MercadoPagoWebhookController } from '../src/mercadopago/mercadopago.webhook.controller';
+import { PaymentWebhookQueueService } from '../src/payments/payment-webhook-queue.service';
+import { PaymentWebhookQueue1793100000000 } from '../src/database/migrations/1793100000000-PaymentWebhookQueue';
+import type { MetricsService } from '../src/metrics/metrics.service';
+import { EncryptUserIdentity1793300004000 } from '../src/database/migrations/1793300004000-EncryptUserIdentity';
+import { AddUnitGallery1792800000000 } from '../src/database/migrations/1792800000000-AddUnitGallery';
+import { AddUnitActiveStatus1793200000000 } from '../src/database/migrations/1793200000000-AddUnitActiveStatus';
 
 const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
 (enabled ? describe : describe.skip)('Payments with isolated PostgreSQL', () => {
@@ -108,6 +116,14 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
     await db.initialize();
     await applyFunctionalGapsMigrations(db);
     const runner = db.createQueryRunner();
+    if (!(await runner.hasColumn('users', 'cpf_hash')))
+      await new EncryptUserIdentity1793300004000().up(runner);
+    if (!(await runner.hasColumn('units', 'gallery_urls')))
+      await new AddUnitGallery1792800000000().up(runner);
+    if (!(await runner.hasColumn('units', 'is_active')))
+      await new AddUnitActiveStatus1793200000000().up(runner);
+    if (!(await runner.hasTable('payment_webhook_events')))
+      await new PaymentWebhookQueue1793100000000().up(runner);
     if (!(await runner.hasTable('payment_transactions')))
       await new HardenPayments1790550000000().up(runner);
     if (!(await runner.hasTable('payment_manual_events')))
@@ -145,6 +161,7 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
   });
   beforeEach(async () => {
     jest.clearAllMocks();
+    await db.query('DELETE FROM payment_webhook_events WHERE unit_id=$1', [unit.id]);
     await db.query(
       "UPDATE payments SET reconcile_after=now()+interval '1 year' WHERE order_id IN (SELECT id FROM orders WHERE unit_id=$1)",
       [unit.id],
@@ -184,6 +201,7 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
   });
   afterAll(async () => {
     if (unit) {
+      await db.query('DELETE FROM payment_webhook_events WHERE unit_id=$1', [unit.id]);
       await db.query('DELETE FROM payment_seller_events WHERE unit_id=$1', [unit.id]);
       await db.query(
         'DELETE FROM payment_refund_attempts WHERE refund_id IN (SELECT id FROM payment_refunds WHERE unit_id=$1)',
@@ -418,7 +436,11 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
           .getRepository(CartItem)
           .save({ cart_id: cart.id, product_id: product.id, quantity: 1, unit_price: price });
       }
-      const config = new ConfigService({ JWT_SECRET: 'test-quote-signing-secret' });
+      const config = new ConfigService({
+        JWT_SECRET: 'test-quote-signing-secret',
+        DELIVERY_CODE_SECRET: 'test-delivery-code-secret',
+        DELIVERY_CODE_ENCRYPTION_KEY: 'test-delivery-encryption-key',
+      });
       const pricing = new CheckoutPricingService(config);
       const signing = new CheckoutQuoteService(config);
       const couponService = {
@@ -617,6 +639,102 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
       PaymentMethod.PIX,
     );
   });
+
+  it('processes a signed HTTP webhook through the durable queue exactly once', async () => {
+    const metrics = {
+      observeWebhookQueue: jest.fn(),
+      observeWebhookFailure: jest.fn(),
+    } as unknown as MetricsService;
+    const queue = new PaymentWebhookQueueService(db, lifecycle, metrics);
+    const config = new ConfigService({ MP_WEBHOOK_SECRET: 'isolated-webhook-secret' });
+    const module = await Test.createTestingModule({
+      controllers: [MercadoPagoWebhookController],
+      providers: [
+        { provide: PaymentWebhookQueueService, useValue: queue },
+        { provide: ConfigService, useValue: config },
+      ],
+    }).compile();
+    const app = module.createNestApplication();
+    await app.init();
+    const id = String(order.id + 900000);
+    const ts = String(Math.floor(Date.now() / 1000));
+    const signature = createHmac('sha256', 'isolated-webhook-secret')
+      .update(`id:${id};request-id:integration-request;ts:${ts};`)
+      .digest('hex');
+    const deliver = (sig = signature) =>
+      request(app.getHttpServer())
+        .post(`/webhooks/mercadopago?data.id=${id}&unit_id=${unit.id}`)
+        .set('x-signature', `ts=${ts},v1=${sig}`)
+        .set('x-request-id', 'integration-request')
+        .send({ id: 'same-notification', type: 'payment', data: { id } });
+    try {
+      await deliver('0'.repeat(64)).expect(401);
+      expect(
+        await db.query('SELECT id FROM payment_webhook_events WHERE unit_id=$1', [unit.id]),
+      ).toHaveLength(0);
+      await Promise.all([deliver().expect(200), deliver().expect(200)]);
+      await queue.processDue();
+      await deliver().expect(200);
+      await queue.processDue();
+      const [event] = await db.query(
+        'SELECT status,attempts FROM payment_webhook_events WHERE unit_id=$1',
+        [unit.id],
+      );
+      expect(event).toMatchObject({ status: 'PROCESSED', attempts: 1 });
+      expect(
+        await db
+          .getRepository(OrderStatusHistory)
+          .countBy({ order_id: order.id, status: OrderStatus.CONFIRMED }),
+      ).toBe(1);
+      expect((await db.getRepository(Payment).findOneByOrFail({ order_id: order.id })).status).toBe(
+        PaymentStatus.PAID,
+      );
+      expect((await db.getRepository(Order).findOneByOrFail({ id: order.id })).status).toBe(
+        OrderStatus.CONFIRMED,
+      );
+    } finally {
+      await app.close();
+    }
+  });
+
+  it('keeps a refused payment unpaid and the order unconfirmed', async () => {
+    snapshot.status = 'rejected';
+    snapshot.statusDetail = 'cc_rejected_other_reason';
+    snapshot.approvedAt = null;
+    await lifecycle.process(paymentId(), unit.id);
+    expect((await db.getRepository(Payment).findOneByOrFail({ order_id: order.id })).status).toBe(
+      PaymentStatus.REJECTED,
+    );
+    expect((await db.getRepository(Order).findOneByOrFail({ id: order.id })).status).toBe(
+      OrderStatus.PENDING,
+    );
+  });
+
+  it('retries a provider outage in the queue without prematurely marking an order paid', async () => {
+    const metrics = {
+      observeWebhookQueue: jest.fn(),
+      observeWebhookFailure: jest.fn(),
+    } as unknown as MetricsService;
+    const queue = new PaymentWebhookQueueService(db, lifecycle, metrics);
+    mp.getPaymentSnapshot.mockRejectedValueOnce(new Error('Provider unavailable'));
+    await queue.enqueue(paymentId(), unit.id, null, 'outage');
+    await queue.processDue();
+    expect((await db.getRepository(Payment).findOneByOrFail({ order_id: order.id })).status).toBe(
+      PaymentStatus.PENDING,
+    );
+    const [pending] = await db.query(
+      'SELECT status,attempts FROM payment_webhook_events WHERE unit_id=$1',
+      [unit.id],
+    );
+    expect(pending).toMatchObject({ status: 'PENDING', attempts: 1 });
+    await db.query('UPDATE payment_webhook_events SET next_attempt_at=now() WHERE unit_id=$1', [
+      unit.id,
+    ]);
+    await queue.processDue();
+    expect((await db.getRepository(Payment).findOneByOrFail({ order_id: order.id })).status).toBe(
+      PaymentStatus.PAID,
+    );
+  });
   it('rolls back payment if confirmation persistence fails, then recovers on retry', async () => {
     const original = EntityManager.prototype.save;
     const spy = jest.spyOn(EntityManager.prototype, 'save').mockImplementation(function (
@@ -803,6 +921,7 @@ const enabled = process.env.PAYMENTS_TEST_DATABASE === 'meatshop_payments_test';
       MP_OAUTH_REDIRECT_URI: 'https://example.invalid/callback',
       MP_CREDENTIAL_ENCRYPTION_KEY: 'test-encryption-key',
       MP_WEBHOOK_SECRET: 'webhook',
+      MP_ENV: 'production',
     });
     const accounts = new SellerAccountsService(db, config, units);
     const { url } = await accounts.connect(unit.id, user);

@@ -98,7 +98,7 @@ export class MercadoPagoService {
     try {
       const preferences = new Preference(this.ensureClient());
       const known = await preferences.search({
-        options: { external_reference: params.checkoutId, limit: 100 },
+        options: { external_reference: params.checkoutId },
       });
       const found = known.elements?.find(
         (item) =>
@@ -134,10 +134,7 @@ export class MercadoPagoService {
             },
           });
       const preferenceId = response.id;
-      const checkoutUrl =
-        this.config.get<string>('MP_ENV', 'sandbox') === 'production'
-          ? response.init_point
-          : response.sandbox_init_point;
+      const checkoutUrl = response.init_point;
       if (!preferenceId || !checkoutUrl) {
         throw new BadRequestException('Failed to create the Mercado Pago preference.');
       }

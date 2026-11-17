@@ -73,11 +73,14 @@ export class SellerAccountsService {
 
   async availability(ids: number[]) {
     if (!ids.length) return [];
-    const accounts: { unit_id: number; enabled: boolean; last_error: string | null }[] =
-      await this.db.query(
-        'SELECT unit_id,enabled,last_error FROM payment_sellers WHERE unit_id=ANY($1::int[])',
-        [ids],
-      );
+    const accounts: {
+      unit_id: number;
+      enabled: boolean;
+      last_error: string | null;
+    }[] = await this.db.query(
+      'SELECT unit_id,enabled,last_error FROM payment_sellers WHERE unit_id=ANY($1::int[])',
+      [ids],
+    );
     return ids.map((id) => ({
       unit_id: id,
       online: this.enabled && accounts.some((a) => a.unit_id === id && a.enabled && !a.last_error),
@@ -174,9 +177,12 @@ export class SellerAccountsService {
     });
   }
 
-  private async token(
-    body: Record<string, string>,
-  ): Promise<{ access_token: string; refresh_token: string; expires_in: number; user_id: number }> {
+  private async token(body: Record<string, string>): Promise<{
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    user_id: number;
+  }> {
     const response = await globalThis.fetch('https://api.mercadopago.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -184,7 +190,7 @@ export class SellerAccountsService {
         ...body,
         client_id: this.config.get('MP_CLIENT_ID'),
         client_secret: this.config.get('MP_CLIENT_SECRET'),
-        test_token: this.config.get('MP_ENV', 'sandbox') !== 'production',
+        test_token: false,
       }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -201,7 +207,24 @@ export class SellerAccountsService {
       !result.user_id
     )
       throw new ServiceUnavailableException('Invalid OAuth response');
+    await this.assertTestSeller(result.access_token, String(result.user_id));
     return result;
+  }
+
+  private async assertTestSeller(accessToken: string, collector: string): Promise<void> {
+    if (this.config.get('MP_ENV', 'sandbox') === 'production') return;
+    const response = await globalThis.fetch('https://api.mercadopago.com/users/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) throw new ServiceUnavailableException('Cannot verify test seller');
+    const account = await response.json();
+    if (
+      String(account.id) !== collector ||
+      !Array.isArray(account.tags) ||
+      !account.tags.includes('test_user')
+    )
+      throw new ServiceUnavailableException('Sandbox requires a Mercado Pago test seller');
   }
 
   async forUnit(unitId: number, forNewPayment = false): Promise<MercadoPagoService> {
@@ -217,7 +240,12 @@ export class SellerAccountsService {
           code: 'SELLER_NOT_CONNECTED',
           message: 'This butcher has not connected its Mercado Pago account',
         });
-      if (new Date(account.expires_at).getTime() < Date.now() + 60_000) {
+      const currentToken = this.decrypt(account.access_token);
+      await this.assertTestSeller(currentToken, String(account.collector_id));
+      if (
+        new Date(account.expires_at).getTime() < Date.now() + 60_000 ||
+        (this.config.get('MP_ENV', 'sandbox') !== 'production' && currentToken.startsWith('TEST-'))
+      ) {
         const token = await this.token({
           grant_type: 'refresh_token',
           refresh_token: this.decrypt(account.refresh_token),
@@ -235,7 +263,7 @@ export class SellerAccountsService {
         );
         return { token: token.access_token, collector: account.collector_id };
       }
-      return { token: this.decrypt(account.access_token), collector: account.collector_id };
+      return { token: currentToken, collector: account.collector_id };
     };
     const access = await this.db.transaction(read).catch(async (error: unknown) => {
       // Run after rollback; writing this row while its transaction holds the lock would deadlock.
