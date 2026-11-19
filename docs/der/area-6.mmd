@@ -1,0 +1,186 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    notification_preferences {
+        integer user_id PK,FK "NOT NULL"
+        boolean orders_enabled  "NOT NULL"
+        boolean delivery_enabled  "NOT NULL"
+        boolean promotions_enabled  "NOT NULL"
+        boolean system_enabled  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+    }
+
+    notifications {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        text message  "NOT NULL"
+        notifications_type_enum type  "NOT NULL"
+        boolean read  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_120_ title  "NOT NULL"
+        varchar_255_ action_url  "NULL"
+    }
+
+    orders {
+        integer id PK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer delivery_person_id FK "NULL"
+        timestamp order_date  "NOT NULL"
+        orders_status_enum status  "NOT NULL"
+        orders_delivery_status_enum delivery_status  "NULL"
+        orders_delivery_step_enum delivery_step  "NULL"
+        numeric_10_2_ total_amount  "NOT NULL"
+        numeric_10_2_ subtotal  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ delivery_fee  "NOT NULL"
+        text cancellation_reason  "NULL"
+        timestamp cancelled_at  "NULL"
+        orders_cancelled_by_enum cancelled_by  "NULL"
+        integer address_id FK "NULL"
+        integer coupon_id FK "NULL"
+        timestamp scheduled_delivery_date  "NULL"
+        boolean is_scheduled  "NOT NULL"
+        orders_delivery_type_enum delivery_type  "NOT NULL"
+        orders_payment_status_enum payment_status  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_64_ pickup_code_hash  "NULL"
+        varchar_64_ delivery_code_hash  "NULL"
+        timestamp pickup_code_expires_at  "NULL"
+        timestamp delivery_code_expires_at  "NULL"
+        integer pickup_code_attempts  "NOT NULL"
+        integer delivery_code_attempts  "NOT NULL"
+        timestamp pickup_code_locked_until  "NULL"
+        timestamp delivery_code_locked_until  "NULL"
+        timestamp pickup_verified_at  "NULL"
+        timestamp delivery_verified_at  "NULL"
+        uuid checkout_id  "NULL"
+        varchar_255_ delivery_code_ciphertext  "NULL"
+        jsonb destination_snapshot  "NULL"
+        uuid tracking_session_id  "NULL"
+        integer tracking_consent_user_id  "NULL"
+        timestamptz tracking_consent_at  "NULL"
+        timestamptz tracking_revoked_at  "NULL"
+        timestamptz payment_due_at  "NULL"
+        numeric_12_2_ change_for  "NULL"
+        varchar_64_ checkout_request_hash  "NULL"
+    }
+
+    support_attachments {
+        integer id PK "NOT NULL"
+        integer message_id FK "NOT NULL"
+        varchar_255_ file_url  "NOT NULL"
+        varchar_120_ original_name  "NOT NULL"
+        varchar_50_ mime_type  "NOT NULL"
+        integer size_bytes  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    support_messages {
+        integer id PK "NOT NULL"
+        integer ticket_id FK "NOT NULL"
+        integer sender_id FK "NOT NULL"
+        text message  "NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    support_tickets {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_150_ subject  "NOT NULL"
+        text description  "NULL"
+        support_tickets_status_enum status  "NOT NULL"
+        text response  "NULL"
+        integer responded_by FK "NULL"
+        timestamp responded_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        integer order_id FK "NULL"
+        integer assigned_to FK "NULL"
+        support_tickets_category_enum category  "NOT NULL"
+        support_tickets_priority_enum priority  "NOT NULL"
+        timestamp closed_at  "NULL"
+        timestamp last_message_at  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        text contact  "NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    user_device_tokens {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_300_ fcm_token UK "NOT NULL"
+        varchar_20_ platform  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp last_seen_at  "NOT NULL"
+        varchar_30_ app_version  "NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    users ||--o| notification_preferences : "user_id"
+    units o|--o{ notifications : "unit_id"
+    users ||--o{ notifications : "user_id"
+    support_messages ||--o{ support_attachments : "message_id"
+    users ||--o{ support_messages : "sender_id"
+    support_tickets ||--o{ support_messages : "ticket_id"
+    users o|--o{ support_tickets : "assigned_to"
+    orders o|--o{ support_tickets : "order_id"
+    users o|--o{ support_tickets : "responded_by"
+    units o|--o{ support_tickets : "unit_id"
+    users ||--o{ support_tickets : "user_id"
+    users ||--o{ user_device_tokens : "user_id"

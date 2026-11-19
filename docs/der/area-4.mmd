@@ -1,0 +1,217 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    delivery_earnings_events {
+        bigint id PK "NOT NULL"
+        integer order_id  "NOT NULL"
+        integer user_id  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    delivery_expenses {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_30_ category  "NOT NULL"
+        varchar_300_ description  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        date incurred_on  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    delivery_goals {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        delivery_goals_period_enum period  "NOT NULL"
+        numeric_10_2_ target  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+    }
+
+    delivery_offer_rejections {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        jsonb reasons  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    delivery_persons {
+        integer id PK "NOT NULL"
+        integer user_id FK,UK "NOT NULL"
+        delivery_persons_vehicle_enum vehicle  "NOT NULL"
+        delivery_persons_status_enum status  "NOT NULL"
+        numeric_3_2_ average_rating  "NULL"
+        timestamp created_at  "NOT NULL"
+        boolean is_online  "NOT NULL"
+        timestamp availability_updated_at  "NULL"
+        delivery_persons_affiliation_type_enum affiliation_type  "NOT NULL"
+    }
+
+    delivery_settlements {
+        integer order_id PK,FK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        integer actor_id FK "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_200_ reference  "NOT NULL"
+        timestamptz paid_at  "NOT NULL"
+    }
+
+    delivery_tracking {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        numeric_10_7_ latitude  "NOT NULL"
+        numeric_10_7_ longitude  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        numeric_7_2_ accuracy  "NULL"
+        integer delivery_person_id  "NULL"
+        uuid sample_id  "NULL"
+        timestamptz captured_at  "NULL"
+    }
+
+    expenses {
+        integer id PK "NOT NULL"
+        varchar supplierName  "NOT NULL"
+        text type  "NOT NULL"
+        numeric_10_2_ amount  "NOT NULL"
+        numeric_10_2_ discount  "NOT NULL"
+        numeric_10_2_ paidAmount  "NOT NULL"
+        text postedAt  "NULL"
+        text paidAt  "NULL"
+        text paymentMethod  "NOT NULL"
+        text notes  "NULL"
+        text cpfCnpj  "NULL"
+        text supplierId  "NULL"
+        timestamp createdAt  "NOT NULL"
+        timestamp updatedAt  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+    }
+
+    orders {
+        integer id PK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer delivery_person_id FK "NULL"
+        timestamp order_date  "NOT NULL"
+        orders_status_enum status  "NOT NULL"
+        orders_delivery_status_enum delivery_status  "NULL"
+        orders_delivery_step_enum delivery_step  "NULL"
+        numeric_10_2_ total_amount  "NOT NULL"
+        numeric_10_2_ subtotal  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ delivery_fee  "NOT NULL"
+        text cancellation_reason  "NULL"
+        timestamp cancelled_at  "NULL"
+        orders_cancelled_by_enum cancelled_by  "NULL"
+        integer address_id FK "NULL"
+        integer coupon_id FK "NULL"
+        timestamp scheduled_delivery_date  "NULL"
+        boolean is_scheduled  "NOT NULL"
+        orders_delivery_type_enum delivery_type  "NOT NULL"
+        orders_payment_status_enum payment_status  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_64_ pickup_code_hash  "NULL"
+        varchar_64_ delivery_code_hash  "NULL"
+        timestamp pickup_code_expires_at  "NULL"
+        timestamp delivery_code_expires_at  "NULL"
+        integer pickup_code_attempts  "NOT NULL"
+        integer delivery_code_attempts  "NOT NULL"
+        timestamp pickup_code_locked_until  "NULL"
+        timestamp delivery_code_locked_until  "NULL"
+        timestamp pickup_verified_at  "NULL"
+        timestamp delivery_verified_at  "NULL"
+        uuid checkout_id  "NULL"
+        varchar_255_ delivery_code_ciphertext  "NULL"
+        jsonb destination_snapshot  "NULL"
+        uuid tracking_session_id  "NULL"
+        integer tracking_consent_user_id  "NULL"
+        timestamptz tracking_consent_at  "NULL"
+        timestamptz tracking_revoked_at  "NULL"
+        timestamptz payment_due_at  "NULL"
+        numeric_12_2_ change_for  "NULL"
+        varchar_64_ checkout_request_hash  "NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    vehicles {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        vehicles_type_enum type  "NOT NULL"
+        varchar_80_ model  "NOT NULL"
+        varchar_10_ plate  "NOT NULL"
+        varchar_30_ color  "NOT NULL"
+        smallint year  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        boolean is_enabled  "NOT NULL"
+        jsonb photo_urls  "NOT NULL"
+    }
+
+    users ||--o{ delivery_expenses : "user_id"
+    delivery_persons ||--o{ delivery_goals : "delivery_person_id"
+    orders ||--o{ delivery_offer_rejections : "order_id"
+    delivery_persons ||--o{ delivery_offer_rejections : "delivery_person_id"
+    users ||--o| delivery_persons : "user_id"
+    users ||--o{ delivery_settlements : "actor_id"
+    delivery_persons ||--o{ delivery_settlements : "delivery_person_id"
+    orders ||--o| delivery_settlements : "order_id"
+    orders ||--o{ delivery_tracking : "order_id"
+    units ||--o{ expenses : "unit_id"
+    delivery_persons ||--o{ vehicles : "delivery_person_id"
+    delivery_persons |o..o{ delivery_tracking : "ref delivery_person_id sem FK"
+    orders |o..o{ delivery_earnings_events : "ref order_id sem FK"
+    users |o..o{ delivery_earnings_events : "ref user_id sem FK"

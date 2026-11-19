@@ -1,764 +1,836 @@
 ---
 config:
   layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
 ---
 erDiagram
     direction TB
 
-    Address {
-        int id PK
-        int user_id FK
-        string street
-        string number
-        string complement "opcional"
-        string neighborhood
-        string city
-        string state
-        string zip_code
-        string label "Casa | Trabalho | Outro"
-        boolean is_default
-        decimal latitude "opcional"
-        decimal longitude "opcional"
-        string coordinate_source
+    addresses {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_150_ street  "NOT NULL"
+        varchar_20_ number  "NOT NULL"
+        varchar_100_ complement  "NULL"
+        varchar_100_ neighborhood  "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        addresses_label_enum label  "NOT NULL"
+        boolean is_default  "NOT NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
     }
 
-    AiConversation {
-        uuid id PK
-        int user_id FK
-        datetime created_at "com fuso horario"
-        datetime expires_at "com fuso horario"
+    ai_conversations {
+        uuid id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
     }
 
-    AiMessage {
-        bigint id PK
-        uuid conversation_id FK
-        string role
-        text content
-        datetime created_at "com fuso horario"
+    ai_messages {
+        bigint id PK "NOT NULL"
+        uuid conversation_id FK "NOT NULL"
+        varchar_10_ role  "NOT NULL"
+        text content  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    AiRateLimit {
-        int user_id PK,FK
-        datetime window_started_at "com fuso horario"
-        int request_count
-        datetime updated_at "com fuso horario"
+    ai_rate_limits {
+        integer user_id PK,FK "NOT NULL"
+        timestamptz window_started_at  "NOT NULL"
+        integer request_count  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    AuditLog {
-        int id PK
-        int user_id FK "opcional"
-        string action
-        string entity
-        string entity_id "opcional"
-        text old_data "opcional"
-        text new_data "opcional"
-        datetime created_at
-        int unit_id FK "opcional"
-        string actor_type
-        string actor_identifier "opcional"
-        string description
-        string outcome "SUCCESS | FAILURE"
-        string method "opcional"
-        string path "opcional"
-        string correlation_id "opcional"
-        string ip_address "opcional"
-        string user_agent "opcional"
-        int status_code "opcional"
+    audit_logs {
+        integer id PK "NOT NULL"
+        integer user_id FK "NULL"
+        varchar_50_ action  "NOT NULL"
+        varchar_100_ entity  "NOT NULL"
+        varchar_50_ entity_id  "NULL"
+        text old_data  "NULL"
+        text new_data  "NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_20_ actor_type  "NOT NULL"
+        varchar_64_ actor_identifier  "NULL"
+        varchar_255_ description  "NOT NULL"
+        audit_logs_outcome_enum outcome  "NOT NULL"
+        varchar_10_ method  "NULL"
+        varchar_255_ path  "NULL"
+        varchar_64_ correlation_id  "NULL"
+        varchar_64_ ip_address  "NULL"
+        varchar_255_ user_agent  "NULL"
+        integer status_code  "NULL"
     }
 
-    BusinessHours {
-        int id PK
-        int unit_id FK
-        string weekday "SUNDAY | MONDAY | TUESDAY | WEDNESDAY | THURSDAY | FRIDAY | SATURDAY"
-        time opening_time "opcional"
-        time closing_time "opcional"
-        boolean is_open
+    auth_login_attempts {
+        varchar_64_ identity_hash PK "NOT NULL"
+        integer failed_attempts  "NOT NULL"
+        timestamptz locked_until  "NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    Cart {
-        int id PK
-        int user_id FK,UK
-        datetime created_at
+    business_hours {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        business_hours_weekday_enum weekday  "NOT NULL"
+        time opening_time  "NULL"
+        time closing_time  "NULL"
+        boolean is_open  "NOT NULL"
     }
 
-    CartItem {
-        int id PK
-        int cart_id FK
-        int product_id FK
-        decimal quantity
-        decimal unit_price
+    cart {
+        integer id PK "NOT NULL"
+        integer user_id FK,UK "NOT NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    Category {
-        int id PK
-        string name
-        string description "opcional"
-        boolean active
-        int unit_id FK
+    cart_items {
+        integer id PK "NOT NULL"
+        integer cart_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        numeric_12_3_ quantity  "NOT NULL"
+        numeric_10_2_ unit_price  "NOT NULL"
     }
 
-    Chat {
-        int id PK
-        int order_id FK
-        int sender_id FK
-        int receiver_id FK
-        string participant_type "UNIT | DELIVERY_PERSON | UNIT_DELIVERY_PERSON"
-        text message
-        datetime sent_at
-        datetime read_at "opcional"
+    categories {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_255_ description  "NULL"
+        boolean active  "NOT NULL"
+        integer unit_id FK "NOT NULL"
     }
 
-    CouponRedemption {
-        int id PK
-        int coupon_id FK
-        int user_id FK
-        int order_id FK,UK
-        int unit_id FK
-        decimal discount_amount
-        string status "REDEEMED | RELEASED"
-        datetime redeemed_at
-        datetime released_at "opcional"
+    chat_messages {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer sender_id FK "NOT NULL"
+        integer receiver_id FK "NOT NULL"
+        chat_messages_participant_type_enum participant_type  "NOT NULL"
+        text message  "NOT NULL"
+        timestamp sent_at  "NOT NULL"
+        timestamp read_at  "NULL"
     }
 
-    CouponUnit {
-        int coupon_id PK,FK
-        int unit_id PK,FK
+    coupon_redemptions {
+        integer id PK "NOT NULL"
+        integer coupon_id FK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer order_id FK,UK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        coupon_redemptions_status_enum status  "NOT NULL"
+        timestamp redeemed_at  "NOT NULL"
+        timestamp released_at  "NULL"
     }
 
-    Coupon {
-        int id PK
-        string code UK
-        datetime expires_at
-        boolean active
-        datetime created_at
-        string name
-        text description "opcional"
-        string type "PLATFORM | UNIT"
-        int unit_id FK "opcional"
-        string discount_type "PERCENTAGE | FIXED"
-        decimal discount_amount
-        decimal maximum_discount "opcional"
-        decimal minimum_order_value
-        datetime starts_at
-        int total_usage_limit "opcional"
-        int usage_limit_per_user "opcional"
-        int current_usage_count
-        int created_by FK
-        datetime updated_at
+    coupon_units {
+        integer coupon_id PK,FK "NOT NULL"
+        integer unit_id PK,FK "NOT NULL"
     }
 
-    DeliveryGoal {
-        int id PK
-        int delivery_person_id FK
-        string period "daily | weekly | monthly"
-        decimal target
-        datetime updated_at
+    coupons {
+        integer id PK "NOT NULL"
+        varchar_50_ code UK "NOT NULL"
+        timestamp expires_at  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_120_ name  "NOT NULL"
+        text description  "NULL"
+        coupons_type_enum type  "NOT NULL"
+        integer unit_id FK "NULL"
+        coupons_discount_type_enum discount_type  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ maximum_discount  "NULL"
+        numeric_10_2_ minimum_order_value  "NOT NULL"
+        timestamp starts_at  "NOT NULL"
+        integer total_usage_limit  "NULL"
+        integer usage_limit_per_user  "NULL"
+        integer current_usage_count  "NOT NULL"
+        integer created_by FK "NOT NULL"
+        timestamp updated_at  "NOT NULL"
     }
 
-    DeliveryOfferRejection {
-        int id PK
-        int delivery_person_id FK
-        int order_id FK
-        jsonb reasons
-        datetime created_at
+    delivery_earnings_events {
+        bigint id PK "NOT NULL"
+        integer order_id  "NOT NULL"
+        integer user_id  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    DeliveryPerson {
-        int id PK
-        int user_id FK,UK
-        string vehicle "MOTORCYCLE | BIKE | CAR | ON_FOOT"
-        string status "PENDING | ACTIVE | INACTIVE"
-        decimal average_rating "opcional"
-        datetime created_at
-        boolean is_online
-        datetime availability_updated_at "opcional"
-        string affiliation_type "AUTONOMOUS | UNIT"
+    delivery_expenses {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_30_ category  "NOT NULL"
+        varchar_300_ description  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        date incurred_on  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    DeliveryReview {
-        int id PK
-        int order_id FK,UK
-        int client_id FK
-        int delivery_person_id FK
-        int rating
-        text comment "opcional"
-        datetime created_at
+    delivery_goals {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        delivery_goals_period_enum period  "NOT NULL"
+        numeric_10_2_ target  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
     }
 
-    DeliverySettlement {
-        int order_id PK,FK
-        int delivery_person_id FK
-        int actor_id FK
-        decimal amount
-        string reference
-        datetime paid_at "com fuso horario"
+    delivery_offer_rejections {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        jsonb reasons  "NOT NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    DeliveryTracking {
-        int id PK
-        int order_id FK
-        decimal latitude
-        decimal longitude
-        datetime created_at
-        decimal accuracy "opcional"
-        int delivery_person_id "opcional"
-        uuid sample_id "opcional"
-        datetime captured_at "opcional; com fuso horario"
+    delivery_persons {
+        integer id PK "NOT NULL"
+        integer user_id FK,UK "NOT NULL"
+        delivery_persons_vehicle_enum vehicle  "NOT NULL"
+        delivery_persons_status_enum status  "NOT NULL"
+        numeric_3_2_ average_rating  "NULL"
+        timestamp created_at  "NOT NULL"
+        boolean is_online  "NOT NULL"
+        timestamp availability_updated_at  "NULL"
+        delivery_persons_affiliation_type_enum affiliation_type  "NOT NULL"
     }
 
-    Expense {
-        int id PK
-        string supplierName
-        text type
-        decimal amount
-        decimal discount
-        decimal paidAmount
-        text postedAt "opcional"
-        text paidAt "opcional"
-        text paymentMethod
-        text notes "opcional"
-        text cpfCnpj "opcional"
-        text supplierId "opcional"
-        datetime createdAt
-        datetime updatedAt
-        int unit_id FK
+    delivery_reviews {
+        integer id PK "NOT NULL"
+        integer order_id FK,UK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        integer rating  "NOT NULL"
+        text comment  "NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    LegalAcceptance {
-        int id PK
-        int user_id FK
-        int document_id FK
-        int unit_id FK "opcional"
-        string channel
-        boolean authorized_representative
-        datetime accepted_at "com fuso horario"
+    delivery_settlements {
+        integer order_id PK,FK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        integer actor_id FK "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_200_ reference  "NOT NULL"
+        timestamptz paid_at  "NOT NULL"
     }
 
-    LegalDocument {
-        int id PK
-        string kind
-        string version
-        string title
-        text content
-        string content_hash
-        datetime published_at "com fuso horario"
-        boolean is_current
+    delivery_tracking {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        numeric_10_7_ latitude  "NOT NULL"
+        numeric_10_7_ longitude  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        numeric_7_2_ accuracy  "NULL"
+        integer delivery_person_id  "NULL"
+        uuid sample_id  "NULL"
+        timestamptz captured_at  "NULL"
     }
 
-    Notification {
-        int id PK
-        int user_id FK
-        text message
-        string type "ORDER | DELIVERY | PROMOTION | SYSTEM"
-        boolean read
-        datetime created_at
-        int unit_id FK "opcional"
-        string title
-        string action_url "opcional"
+    expenses {
+        integer id PK "NOT NULL"
+        varchar supplierName  "NOT NULL"
+        text type  "NOT NULL"
+        numeric_10_2_ amount  "NOT NULL"
+        numeric_10_2_ discount  "NOT NULL"
+        numeric_10_2_ paidAmount  "NOT NULL"
+        text postedAt  "NULL"
+        text paidAt  "NULL"
+        text paymentMethod  "NOT NULL"
+        text notes  "NULL"
+        text cpfCnpj  "NULL"
+        text supplierId  "NULL"
+        timestamp createdAt  "NOT NULL"
+        timestamp updatedAt  "NOT NULL"
+        integer unit_id FK "NOT NULL"
     }
 
-    OrderItem {
-        int id PK
-        int order_id FK
-        int product_id FK
-        decimal quantity
-        decimal unit_price
-        jsonb product_snapshot "opcional"
+    legal_acceptances {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer document_id FK "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_10_ channel  "NOT NULL"
+        boolean authorized_representative  "NOT NULL"
+        timestamptz accepted_at  "NOT NULL"
+        varchar_10_ event_type  "NOT NULL"
     }
 
-    OrderStatusHistory {
-        int id PK
-        int order_id FK
-        int updated_by FK "opcional"
-        string status "PENDING | CONFIRMED | PREPARING | READY | OUT_FOR_DELIVERY | DELIVERED | CANCELLED"
-        datetime created_at
+    legal_documents {
+        integer id PK "NOT NULL"
+        varchar_40_ kind  "NOT NULL"
+        varchar_40_ version  "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text content  "NOT NULL"
+        varchar_64_ content_hash  "NOT NULL"
+        timestamptz published_at  "NOT NULL"
+        boolean is_current  "NOT NULL"
+        boolean is_revocable  "NOT NULL"
     }
 
-    Order {
-        int id PK
-        int client_id FK
-        int unit_id FK
-        int delivery_person_id FK "opcional"
-        datetime order_date
-        string status "PENDING | CONFIRMED | PREPARING | READY | OUT_FOR_DELIVERY | DELIVERED | CANCELLED"
-        string delivery_status "opcional; WAITING_DELIVERY_PERSON | PICKUP | ON_THE_WAY | DELIVERED"
-        string delivery_step "opcional; PICKUP | DELIVERING"
-        decimal total_amount
-        decimal subtotal
-        decimal discount_amount
-        decimal delivery_fee
-        text cancellation_reason "opcional"
-        datetime cancelled_at "opcional"
-        string cancelled_by "opcional; CLIENT | UNIT | SYSTEM"
-        int address_id FK "opcional"
-        int coupon_id FK "opcional"
-        datetime scheduled_delivery_date "opcional"
-        boolean is_scheduled
-        string delivery_type "DELIVERY | PICKUP"
-        string payment_status "PENDING | PAID | REJECTED | REFUNDED | CANCELLED | PARTIALLY_REFUNDED | CHARGED_BACK"
-        datetime updated_at
-        string pickup_code_hash "opcional"
-        string delivery_code_hash "opcional"
-        datetime pickup_code_expires_at "opcional"
-        datetime delivery_code_expires_at "opcional"
-        int pickup_code_attempts
-        int delivery_code_attempts
-        datetime pickup_code_locked_until "opcional"
-        datetime delivery_code_locked_until "opcional"
-        datetime pickup_verified_at "opcional"
-        datetime delivery_verified_at "opcional"
-        uuid checkout_id "opcional"
-        string delivery_code_ciphertext "opcional"
-        jsonb destination_snapshot "opcional"
-        uuid tracking_session_id "opcional"
-        int tracking_consent_user_id "opcional"
-        datetime tracking_consent_at "opcional; com fuso horario"
-        datetime tracking_revoked_at "opcional; com fuso horario"
-        datetime payment_due_at "opcional; com fuso horario"
-        decimal change_for "opcional"
-        string checkout_request_hash "opcional"
+    notification_preferences {
+        integer user_id PK,FK "NOT NULL"
+        boolean orders_enabled  "NOT NULL"
+        boolean delivery_enabled  "NOT NULL"
+        boolean promotions_enabled  "NOT NULL"
+        boolean system_enabled  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
     }
 
-    PaymentManualEvent {
-        uuid id PK
-        int order_id FK
-        int actor_id FK
-        string kind
-        decimal amount
-        string reference
-        datetime created_at "com fuso horario"
+    notifications {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        text message  "NOT NULL"
+        notifications_type_enum type  "NOT NULL"
+        boolean read  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_120_ title  "NOT NULL"
+        varchar_255_ action_url  "NULL"
     }
 
-    PaymentNotification {
-        int id PK
-        int order_id FK
-        string status
-        datetime sent_at "opcional; com fuso horario"
-        datetime next_attempt_at "com fuso horario"
-        datetime created_at "com fuso horario"
+    order_items {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        numeric_12_3_ quantity  "NOT NULL"
+        numeric_10_2_ unit_price  "NOT NULL"
+        jsonb product_snapshot  "NULL"
     }
 
-    PaymentOAuthState {
-        string state_hash PK
-        int unit_id FK
-        int user_id FK
-        text verifier
-        datetime expires_at "com fuso horario"
+    order_status_history {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer updated_by FK "NULL"
+        order_status_history_status_enum status  "NOT NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    PaymentRefundAttempt {
-        bigint id PK
-        uuid refund_id FK
-        uuid attempt_key
-        string provider_id "opcional"
-        string status
-        int actor_id FK "opcional"
-        datetime created_at "com fuso horario"
+    orders {
+        integer id PK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer delivery_person_id FK "NULL"
+        timestamp order_date  "NOT NULL"
+        orders_status_enum status  "NOT NULL"
+        orders_delivery_status_enum delivery_status  "NULL"
+        orders_delivery_step_enum delivery_step  "NULL"
+        numeric_10_2_ total_amount  "NOT NULL"
+        numeric_10_2_ subtotal  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ delivery_fee  "NOT NULL"
+        text cancellation_reason  "NULL"
+        timestamp cancelled_at  "NULL"
+        orders_cancelled_by_enum cancelled_by  "NULL"
+        integer address_id FK "NULL"
+        integer coupon_id FK "NULL"
+        timestamp scheduled_delivery_date  "NULL"
+        boolean is_scheduled  "NOT NULL"
+        orders_delivery_type_enum delivery_type  "NOT NULL"
+        orders_payment_status_enum payment_status  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_64_ pickup_code_hash  "NULL"
+        varchar_64_ delivery_code_hash  "NULL"
+        timestamp pickup_code_expires_at  "NULL"
+        timestamp delivery_code_expires_at  "NULL"
+        integer pickup_code_attempts  "NOT NULL"
+        integer delivery_code_attempts  "NOT NULL"
+        timestamp pickup_code_locked_until  "NULL"
+        timestamp delivery_code_locked_until  "NULL"
+        timestamp pickup_verified_at  "NULL"
+        timestamp delivery_verified_at  "NULL"
+        uuid checkout_id  "NULL"
+        varchar_255_ delivery_code_ciphertext  "NULL"
+        jsonb destination_snapshot  "NULL"
+        uuid tracking_session_id  "NULL"
+        integer tracking_consent_user_id  "NULL"
+        timestamptz tracking_consent_at  "NULL"
+        timestamptz tracking_revoked_at  "NULL"
+        timestamptz payment_due_at  "NULL"
+        numeric_12_2_ change_for  "NULL"
+        varchar_64_ checkout_request_hash  "NULL"
     }
 
-    PaymentRefund {
-        uuid id PK
-        string payment_id
-        int unit_id FK
-        int order_id FK "opcional"
-        decimal amount
-        string status
-        string reason
-        int requested_by "opcional"
-        string provider_id "opcional"
-        int attempts
-        datetime next_attempt_at "com fuso horario"
-        string last_error "opcional"
-        datetime created_at "com fuso horario"
-        datetime updated_at "com fuso horario"
-        uuid attempt_key
-        int retry_requested_by FK "opcional"
+    payment_manual_events {
+        uuid id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer actor_id FK "NOT NULL"
+        varchar_30_ kind  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_200_ reference  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    PaymentSellerEvent {
-        bigint id PK
-        int unit_id FK
-        int actor_id FK "opcional"
-        string kind
-        string collector_id "opcional"
-        datetime created_at "com fuso horario"
+    payment_notifications {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        timestamptz sent_at  "NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    PaymentSeller {
-        int unit_id PK,FK
-        string collector_id
-        text access_token
-        text refresh_token
-        datetime expires_at "com fuso horario"
-        boolean enabled
-        string last_error "opcional"
-        datetime updated_at "com fuso horario"
+    payment_oauth_states {
+        varchar_64_ state_hash PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        text verifier  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
     }
 
-    PaymentTransaction {
-        string id PK
-        int unit_id FK
-        string reference
-        string status
-        decimal amount
-        decimal refunded_amount
-        datetime provider_updated_at "opcional; com fuso horario"
-        datetime updated_at "com fuso horario"
+    payment_refund_attempts {
+        bigint id PK "NOT NULL"
+        uuid refund_id FK "NOT NULL"
+        uuid attempt_key  "NOT NULL"
+        varchar_80_ provider_id  "NULL"
+        varchar_30_ status  "NOT NULL"
+        integer actor_id FK "NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    Payment {
-        int id PK
-        int order_id FK,UK
-        string method "opcional; Pix | Credit | Debit | Cash | Bank Slip | Mercado Pago Balance | Card on Delivery"
-        string status "PENDING | PAID | REJECTED | REFUNDED | CANCELLED | PARTIALLY_REFUNDED | CHARGED_BACK"
-        datetime payment_date "opcional; com fuso horario"
-        string transaction_id "opcional"
-        string mp_preference_id "opcional"
-        string mp_status_detail "opcional"
-        datetime mp_last_event_at "opcional"
-        datetime created_at
-        datetime updated_at
-        string mp_checkout_url "opcional"
-        decimal refunded_amount
-        decimal fee_amount
-        string refund_status "opcional"
-        datetime reconcile_after "com fuso horario"
-        int received_by "opcional"
-        string receipt_reference "opcional"
-        string payment_reference "opcional"
+    payment_refunds {
+        uuid id PK "NOT NULL"
+        varchar_80_ payment_id  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer order_id FK "NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        varchar_255_ reason  "NOT NULL"
+        integer requested_by  "NULL"
+        varchar_80_ provider_id  "NULL"
+        integer attempts  "NOT NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+        uuid attempt_key UK "NOT NULL"
+        integer retry_requested_by FK "NULL"
     }
 
-    ProductImage {
-        int id PK
-        int product_id FK
-        string image_url
-        datetime created_at
+    payment_seller_events {
+        bigint id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer actor_id FK "NULL"
+        varchar_30_ kind  "NOT NULL"
+        varchar_80_ collector_id  "NULL"
+        timestamptz created_at  "NOT NULL"
     }
 
-    Product {
-        int id PK
-        string name
-        text description "opcional"
-        decimal price
-        string unit_of_measure
-        boolean active
-        int unit_id FK
-        int category_id FK
-        string brand "opcional"
-        string image_url "opcional"
+    payment_sellers {
+        integer unit_id PK,FK "NOT NULL"
+        varchar_80_ collector_id  "NOT NULL"
+        text access_token  "NOT NULL"
+        text refresh_token  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
+        boolean enabled  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    Promotion {
-        int id PK
-        int unit_id FK
-        int product_id FK
-        string title
-        text description "opcional"
-        decimal discount_percentage "opcional"
-        decimal promotional_price "opcional"
-        datetime starts_at
-        datetime ends_at
-        boolean active
-        datetime created_at
-        int created_by FK
+    payment_transactions {
+        varchar_80_ id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        varchar_100_ reference  "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        numeric_12_2_ refunded_amount  "NOT NULL"
+        timestamptz provider_updated_at  "NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    RecipeIngredient {
-        int id PK
-        int recipe_id FK
-        string name
-        string quantity
-        string tip "opcional"
+    payment_webhook_events {
+        bigint id PK "NOT NULL"
+        varchar_40_ payment_id  "NOT NULL"
+        integer unit_id  "NULL"
+        varchar_40_ collector_id  "NULL"
+        varchar_120_ dedupe_key  "NOT NULL"
+        varchar_12_ status  "NOT NULL"
+        integer attempts  "NOT NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz processed_at  "NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
     }
 
-    RecipeProduct {
-        int id PK
-        int recipe_id FK
-        int product_id FK
-        string call_to_action
+    payments {
+        integer id PK "NOT NULL"
+        integer order_id FK,UK "NOT NULL"
+        payments_method_enum method  "NULL"
+        payments_status_enum status  "NOT NULL"
+        timestamptz payment_date  "NULL"
+        varchar_40_ transaction_id  "NULL"
+        varchar_120_ mp_preference_id  "NULL"
+        varchar_60_ mp_status_detail  "NULL"
+        timestamp mp_last_event_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_500_ mp_checkout_url  "NULL"
+        numeric_12_2_ refunded_amount  "NOT NULL"
+        numeric_12_2_ fee_amount  "NOT NULL"
+        varchar_30_ refund_status  "NULL"
+        timestamptz reconcile_after  "NOT NULL"
+        integer received_by  "NULL"
+        varchar_200_ receipt_reference  "NULL"
+        varchar_100_ payment_reference  "NULL"
     }
 
-    RecipeStep {
-        int id PK
-        int recipe_id FK
-        int step_number
-        text description
-        text tip "opcional"
+    product_images {
+        integer id PK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar image_url  "NOT NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    Recipe {
-        int id PK
-        int unit_id FK
-        string title
-        text description "opcional"
-        string image_url "opcional"
-        string video_url "opcional"
-        string tag "opcional"
-        boolean active
-        int display_order
-        datetime week_start "opcional"
-        datetime created_at
+    products {
+        integer id PK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        text description  "NULL"
+        numeric_10_2_ price  "NOT NULL"
+        varchar_50_ unit_of_measure  "NOT NULL"
+        boolean active  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer category_id FK "NOT NULL"
+        varchar_100_ brand  "NULL"
+        varchar image_url  "NULL"
     }
 
-    RefreshToken {
-        int id PK
-        text token_hash
-        int user_id FK
-        boolean revoked
-        datetime expires_at
-        datetime created_at
+    promotions {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text description  "NULL"
+        numeric_5_2_ discount_percentage  "NULL"
+        numeric_10_2_ promotional_price  "NULL"
+        timestamp starts_at  "NOT NULL"
+        timestamp ends_at  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        integer created_by FK "NOT NULL"
+        timestamptz notification_sent_at  "NULL"
     }
 
-    Review {
-        int id PK
-        int order_id FK
-        int client_id FK
-        int unit_id FK
-        int product_id FK "opcional"
-        int rating
-        text comment "opcional"
-        datetime created_at
+    rate_limit_counters {
+        varchar_160_ key PK "NOT NULL"
+        timestamptz window_started_at  "NOT NULL"
+        integer request_count  "NOT NULL"
     }
 
-    Sale {
-        int id PK
-        string name
-        string image_url
-        decimal discountValue
-        boolean active
-        datetime starts_at "opcional"
-        datetime ends_at "opcional"
-        datetime created_at
-        datetime updated_at
+    recipe_ingredients {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        varchar_50_ quantity  "NOT NULL"
+        varchar tip  "NULL"
     }
 
-    SavedPaymentMethod {
-        int id PK
-        int user_id FK
-        string mp_card_id
-        string mp_customer_id
-        string brand
-        string last_four
-        string holder_name
-        string expiration_month
-        string expiration_year
-        boolean is_default
-        datetime created_at
+    recipe_products {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar_255_ call_to_action  "NOT NULL"
     }
 
-    Stock {
-        int id PK
-        int product_id FK,UK
-        decimal quantity
-        datetime updated_at
-        decimal min_quantity
+    recipe_steps {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        integer step_number  "NOT NULL"
+        text description  "NOT NULL"
+        text tip  "NULL"
     }
 
-    SupportAttachment {
-        int id PK
-        int message_id FK
-        string file_url
-        string original_name
-        string mime_type
-        int size_bytes
-        datetime created_at
+    recipes {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text description  "NULL"
+        varchar image_url  "NULL"
+        varchar video_url  "NULL"
+        varchar_50_ tag  "NULL"
+        boolean active  "NOT NULL"
+        integer display_order  "NOT NULL"
+        timestamp week_start  "NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    SupportMessage {
-        int id PK
-        int ticket_id FK
-        int sender_id FK
-        text message "opcional"
-        datetime created_at
+    refresh_tokens {
+        integer id PK "NOT NULL"
+        text token_hash  "NOT NULL"
+        integer user_id FK "NOT NULL"
+        boolean revoked  "NOT NULL"
+        timestamp expires_at  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp authenticated_at  "NOT NULL"
     }
 
-    SupportTicket {
-        int id PK
-        int user_id FK
-        string subject
-        text description "opcional"
-        string status "OPEN | ANSWERED | CLOSED | WAITING_SUPPORT | WAITING_USER"
-        text response "opcional"
-        int responded_by FK "opcional"
-        datetime responded_at "opcional"
-        datetime created_at
-        int unit_id FK "opcional"
-        int order_id FK "opcional"
-        int assigned_to FK "opcional"
-        string category "ACCOUNT | BILLING | ORDER | TECHNICAL | SUGGESTION | OTHER"
-        string priority "LOW | NORMAL | HIGH | URGENT"
-        datetime closed_at "opcional"
-        datetime last_message_at
-        datetime updated_at
+    reviews {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer product_id FK "NULL"
+        integer rating  "NOT NULL"
+        text comment  "NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    Unit {
-        int id PK
-        string name
-        string cnpj UK
-        string city
-        string zip_code
-        string state
-        int admin_id FK
-        datetime created_at
-        string street "opcional"
-        string number "opcional"
-        string complement "opcional"
-        string neighborhood "opcional"
-        decimal latitude "opcional"
-        decimal longitude "opcional"
-        string image_url "opcional"
-        string cover_url "opcional"
-        string coordinate_source
-        decimal delivery_radius_km
+    sales {
+        integer id PK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        varchar_500_ image_url  "NOT NULL"
+        numeric_10_2_ discountValue  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp starts_at  "NULL"
+        timestamp ends_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
     }
 
-    UserDeviceToken {
-        int id PK
-        int user_id FK
-        string fcm_token UK
-        string platform
-        datetime created_at
-        datetime last_seen_at
-        string app_version "opcional"
+    socket_io_attachments {
+        bigint id UK "NOT NULL"
+        timestamptz created_at  "NULL"
+        bytea payload  "NULL"
     }
 
-    UserUnit {
-        int id PK
-        int user_id FK
-        int unit_id FK
-        string local_role "OWNER | MANAGER | OPERATOR | DELIVERY"
-        string status "ACTIVE | INACTIVE"
-        datetime created_at
+    stock {
+        integer id PK "NOT NULL"
+        integer product_id FK,UK "NOT NULL"
+        numeric_12_3_ quantity  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        numeric_12_3_ min_quantity  "NOT NULL"
     }
 
-    User {
-        int id PK
-        string name "opcional"
-        string email UK
-        string cpf UK "opcional"
-        string password_hash "opcional"
-        string global_role "SUPER_ADMIN | USER"
-        string app_profile "opcional; CLIENT | DELIVERY | BOTH"
-        int failed_login_attempts
-        datetime locked_until "opcional"
-        boolean email_verified
-        string email_verification_token "opcional"
-        string password_reset_token "opcional"
-        datetime password_reset_expires_at "opcional"
-        datetime created_at
-        string avatar_url "opcional"
-        string firebase_uid "opcional"
-        string phone "opcional"
-        boolean profile_complete
-        boolean is_active
+    support_attachments {
+        integer id PK "NOT NULL"
+        integer message_id FK "NOT NULL"
+        varchar_255_ file_url  "NOT NULL"
+        varchar_120_ original_name  "NOT NULL"
+        varchar_50_ mime_type  "NOT NULL"
+        integer size_bytes  "NOT NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    Vehicle {
-        int id PK
-        int delivery_person_id FK
-        string type "MOTORCYCLE | BIKE | CAR | SCOOTER"
-        string model
-        string plate
-        string color
-        int year
-        boolean is_active
-        datetime created_at
-        boolean is_enabled
-        jsonb photo_urls
+    support_messages {
+        integer id PK "NOT NULL"
+        integer ticket_id FK "NOT NULL"
+        integer sender_id FK "NOT NULL"
+        text message  "NULL"
+        timestamp created_at  "NOT NULL"
     }
 
-    User ||--o{ Address : "user_id"
-    User ||--o{ AiConversation : "user_id"
-    AiConversation ||--o{ AiMessage : "conversation_id"
-    User ||--o| AiRateLimit : "user_id"
-    Unit o|--o{ AuditLog : "unit_id"
-    User o|--o{ AuditLog : "user_id"
-    Unit ||--o{ BusinessHours : "unit_id"
-    User ||--o| Cart : "user_id"
-    Cart ||--o{ CartItem : "cart_id"
-    Product ||--o{ CartItem : "product_id"
-    Unit ||--o{ Category : "unit_id"
-    Order ||--o{ Chat : "order_id"
-    User ||--o{ Chat : "receiver_id"
-    User ||--o{ Chat : "sender_id"
-    Coupon ||--o{ CouponRedemption : "coupon_id"
-    Order ||--o| CouponRedemption : "order_id"
-    Unit ||--o{ CouponRedemption : "unit_id"
-    User ||--o{ CouponRedemption : "user_id"
-    Coupon ||--o{ CouponUnit : "coupon_id"
-    Unit ||--o{ CouponUnit : "unit_id"
-    User ||--o{ Coupon : "created_by"
-    Unit o|--o{ Coupon : "unit_id"
-    DeliveryPerson ||--o{ DeliveryGoal : "delivery_person_id"
-    DeliveryPerson ||--o{ DeliveryOfferRejection : "delivery_person_id"
-    Order ||--o{ DeliveryOfferRejection : "order_id"
-    User ||--o| DeliveryPerson : "user_id"
-    User ||--o{ DeliveryReview : "client_id"
-    DeliveryPerson ||--o{ DeliveryReview : "delivery_person_id"
-    Order ||--o| DeliveryReview : "order_id"
-    User ||--o{ DeliverySettlement : "actor_id"
-    DeliveryPerson ||--o{ DeliverySettlement : "delivery_person_id"
-    Order ||--o| DeliverySettlement : "order_id"
-    Order ||--o{ DeliveryTracking : "order_id"
-    Unit ||--o{ Expense : "unit_id"
-    LegalDocument ||--o{ LegalAcceptance : "document_id"
-    Unit o|--o{ LegalAcceptance : "unit_id"
-    User ||--o{ LegalAcceptance : "user_id"
-    Unit o|--o{ Notification : "unit_id"
-    User ||--o{ Notification : "user_id"
-    Order ||--o{ OrderItem : "order_id"
-    Product ||--o{ OrderItem : "product_id"
-    Order ||--o{ OrderStatusHistory : "order_id"
-    User o|--o{ OrderStatusHistory : "updated_by"
-    Address o|--o{ Order : "address_id"
-    User ||--o{ Order : "client_id"
-    Coupon o|--o{ Order : "coupon_id"
-    DeliveryPerson o|--o{ Order : "delivery_person_id"
-    Unit ||--o{ Order : "unit_id"
-    User ||--o{ PaymentManualEvent : "actor_id"
-    Order ||--o{ PaymentManualEvent : "order_id"
-    Order ||--o{ PaymentNotification : "order_id"
-    Unit ||--o{ PaymentOAuthState : "unit_id"
-    User ||--o{ PaymentOAuthState : "user_id"
-    User o|--o{ PaymentRefundAttempt : "actor_id"
-    PaymentRefund ||--o{ PaymentRefundAttempt : "refund_id"
-    Order o|--o{ PaymentRefund : "order_id"
-    User o|--o{ PaymentRefund : "retry_requested_by"
-    Unit ||--o{ PaymentRefund : "unit_id"
-    User o|--o{ PaymentSellerEvent : "actor_id"
-    Unit ||--o{ PaymentSellerEvent : "unit_id"
-    Unit ||--o| PaymentSeller : "unit_id"
-    Unit ||--o{ PaymentTransaction : "unit_id"
-    Order ||--o| Payment : "order_id"
-    Product ||--o{ ProductImage : "product_id"
-    Category ||--o{ Product : "category_id"
-    Unit ||--o{ Product : "unit_id"
-    User ||--o{ Promotion : "created_by"
-    Product ||--o{ Promotion : "product_id"
-    Unit ||--o{ Promotion : "unit_id"
-    Recipe ||--o{ RecipeIngredient : "recipe_id"
-    Product ||--o{ RecipeProduct : "product_id"
-    Recipe ||--o{ RecipeProduct : "recipe_id"
-    Recipe ||--o{ RecipeStep : "recipe_id"
-    Unit ||--o{ Recipe : "unit_id"
-    User ||--o{ RefreshToken : "user_id"
-    User ||--o{ Review : "client_id"
-    Order ||--o{ Review : "order_id"
-    Product o|--o{ Review : "product_id"
-    Unit ||--o{ Review : "unit_id"
-    User ||--o{ SavedPaymentMethod : "user_id"
-    Product ||--o| Stock : "product_id"
-    SupportMessage ||--o{ SupportAttachment : "message_id"
-    User ||--o{ SupportMessage : "sender_id"
-    SupportTicket ||--o{ SupportMessage : "ticket_id"
-    User o|--o{ SupportTicket : "assigned_to"
-    Order o|--o{ SupportTicket : "order_id"
-    User o|--o{ SupportTicket : "responded_by"
-    Unit o|--o{ SupportTicket : "unit_id"
-    User ||--o{ SupportTicket : "user_id"
-    User ||--o{ Unit : "admin_id"
-    User ||--o{ UserDeviceToken : "user_id"
-    Unit ||--o{ UserUnit : "unit_id"
-    User ||--o{ UserUnit : "user_id"
-    DeliveryPerson ||--o{ Vehicle : "delivery_person_id"
+    support_tickets {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_150_ subject  "NOT NULL"
+        text description  "NULL"
+        support_tickets_status_enum status  "NOT NULL"
+        text response  "NULL"
+        integer responded_by FK "NULL"
+        timestamp responded_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        integer order_id FK "NULL"
+        integer assigned_to FK "NULL"
+        support_tickets_category_enum category  "NOT NULL"
+        support_tickets_priority_enum priority  "NOT NULL"
+        timestamp closed_at  "NULL"
+        timestamp last_message_at  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        text contact  "NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    user_device_tokens {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_300_ fcm_token UK "NOT NULL"
+        varchar_20_ platform  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp last_seen_at  "NOT NULL"
+        varchar_30_ app_version  "NULL"
+    }
+
+    user_units {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        user_units_local_role_enum local_role  "NOT NULL"
+        user_units_status_enum status  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    vehicles {
+        integer id PK "NOT NULL"
+        integer delivery_person_id FK "NOT NULL"
+        vehicles_type_enum type  "NOT NULL"
+        varchar_80_ model  "NOT NULL"
+        varchar_10_ plate  "NOT NULL"
+        varchar_30_ color  "NOT NULL"
+        smallint year  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        boolean is_enabled  "NOT NULL"
+        jsonb photo_urls  "NOT NULL"
+    }
+
+    users ||--o{ addresses : "user_id"
+    users ||--o{ ai_conversations : "user_id"
+    ai_conversations ||--o{ ai_messages : "conversation_id"
+    users ||--o| ai_rate_limits : "user_id"
+    units o|--o{ audit_logs : "unit_id"
+    users o|--o{ audit_logs : "user_id"
+    units ||--o{ business_hours : "unit_id"
+    users ||--o| cart : "user_id"
+    cart ||--o{ cart_items : "cart_id"
+    products ||--o{ cart_items : "product_id"
+    units ||--o{ categories : "unit_id"
+    orders ||--o{ chat_messages : "order_id"
+    users ||--o{ chat_messages : "receiver_id"
+    users ||--o{ chat_messages : "sender_id"
+    coupons ||--o{ coupon_redemptions : "coupon_id"
+    orders ||--o| coupon_redemptions : "order_id"
+    units ||--o{ coupon_redemptions : "unit_id"
+    users ||--o{ coupon_redemptions : "user_id"
+    coupons ||--o{ coupon_units : "coupon_id"
+    units ||--o{ coupon_units : "unit_id"
+    users ||--o{ coupons : "created_by"
+    units o|--o{ coupons : "unit_id"
+    users ||--o{ delivery_expenses : "user_id"
+    delivery_persons ||--o{ delivery_goals : "delivery_person_id"
+    orders ||--o{ delivery_offer_rejections : "order_id"
+    delivery_persons ||--o{ delivery_offer_rejections : "delivery_person_id"
+    users ||--o| delivery_persons : "user_id"
+    users ||--o{ delivery_reviews : "client_id"
+    delivery_persons ||--o{ delivery_reviews : "delivery_person_id"
+    orders ||--o| delivery_reviews : "order_id"
+    users ||--o{ delivery_settlements : "actor_id"
+    delivery_persons ||--o{ delivery_settlements : "delivery_person_id"
+    orders ||--o| delivery_settlements : "order_id"
+    orders ||--o{ delivery_tracking : "order_id"
+    units ||--o{ expenses : "unit_id"
+    legal_documents ||--o{ legal_acceptances : "document_id"
+    units o|--o{ legal_acceptances : "unit_id"
+    users ||--o{ legal_acceptances : "user_id"
+    users ||--o| notification_preferences : "user_id"
+    units o|--o{ notifications : "unit_id"
+    users ||--o{ notifications : "user_id"
+    orders ||--o{ order_items : "order_id"
+    products ||--o{ order_items : "product_id"
+    orders ||--o{ order_status_history : "order_id"
+    users o|--o{ order_status_history : "updated_by"
+    addresses o|--o{ orders : "address_id"
+    users ||--o{ orders : "client_id"
+    coupons o|--o{ orders : "coupon_id"
+    delivery_persons o|--o{ orders : "delivery_person_id"
+    units ||--o{ orders : "unit_id"
+    users ||--o{ payment_manual_events : "actor_id"
+    orders ||--o{ payment_manual_events : "order_id"
+    orders ||--o{ payment_notifications : "order_id"
+    units ||--o{ payment_oauth_states : "unit_id"
+    users ||--o{ payment_oauth_states : "user_id"
+    users o|--o{ payment_refund_attempts : "actor_id"
+    payment_refunds ||--o{ payment_refund_attempts : "refund_id"
+    orders o|--o{ payment_refunds : "order_id"
+    users o|--o{ payment_refunds : "retry_requested_by"
+    units ||--o{ payment_refunds : "unit_id"
+    users o|--o{ payment_seller_events : "actor_id"
+    units ||--o{ payment_seller_events : "unit_id"
+    units ||--o| payment_sellers : "unit_id"
+    units ||--o{ payment_transactions : "unit_id"
+    orders ||--o| payments : "order_id"
+    products ||--o{ product_images : "product_id"
+    categories ||--o{ products : "category_id"
+    units ||--o{ products : "unit_id"
+    users ||--o{ promotions : "created_by"
+    products ||--o{ promotions : "product_id"
+    units ||--o{ promotions : "unit_id"
+    recipes ||--o{ recipe_ingredients : "recipe_id"
+    products ||--o{ recipe_products : "product_id"
+    recipes ||--o{ recipe_products : "recipe_id"
+    recipes ||--o{ recipe_steps : "recipe_id"
+    units ||--o{ recipes : "unit_id"
+    users ||--o{ refresh_tokens : "user_id"
+    users ||--o{ reviews : "client_id"
+    orders ||--o{ reviews : "order_id"
+    products o|--o{ reviews : "product_id"
+    units ||--o{ reviews : "unit_id"
+    products ||--o| stock : "product_id"
+    support_messages ||--o{ support_attachments : "message_id"
+    users ||--o{ support_messages : "sender_id"
+    support_tickets ||--o{ support_messages : "ticket_id"
+    users o|--o{ support_tickets : "assigned_to"
+    orders o|--o{ support_tickets : "order_id"
+    users o|--o{ support_tickets : "responded_by"
+    units o|--o{ support_tickets : "unit_id"
+    users ||--o{ support_tickets : "user_id"
+    users ||--o{ units : "admin_id"
+    users ||--o{ user_device_tokens : "user_id"
+    units ||--o{ user_units : "unit_id"
+    users ||--o{ user_units : "user_id"
+    delivery_persons ||--o{ vehicles : "delivery_person_id"
+    delivery_persons |o..o{ delivery_tracking : "ref delivery_person_id sem FK"
+    users |o..o{ orders : "ref tracking_consent_user_id sem FK"
+    users |o..o{ payments : "ref received_by sem FK"
+    payment_transactions |o..o{ payments : "ref transaction_id sem FK"
+    users |o..o{ payment_refunds : "ref requested_by sem FK"
+    payment_transactions |o..o{ payment_refunds : "ref payment_id sem FK"
+    units |o..o{ payment_webhook_events : "ref unit_id sem FK"
+    payment_transactions |o..o{ payment_webhook_events : "ref payment_id sem FK"
+    orders |o..o{ delivery_earnings_events : "ref order_id sem FK"
+    users |o..o{ delivery_earnings_events : "ref user_id sem FK"

@@ -1,0 +1,117 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    addresses {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        varchar_150_ street  "NOT NULL"
+        varchar_20_ number  "NOT NULL"
+        varchar_100_ complement  "NULL"
+        varchar_100_ neighborhood  "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        addresses_label_enum label  "NOT NULL"
+        boolean is_default  "NOT NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+    }
+
+    auth_login_attempts {
+        varchar_64_ identity_hash PK "NOT NULL"
+        integer failed_attempts  "NOT NULL"
+        timestamptz locked_until  "NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    business_hours {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        business_hours_weekday_enum weekday  "NOT NULL"
+        time opening_time  "NULL"
+        time closing_time  "NULL"
+        boolean is_open  "NOT NULL"
+    }
+
+    refresh_tokens {
+        integer id PK "NOT NULL"
+        text token_hash  "NOT NULL"
+        integer user_id FK "NOT NULL"
+        boolean revoked  "NOT NULL"
+        timestamp expires_at  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp authenticated_at  "NOT NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    user_units {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        user_units_local_role_enum local_role  "NOT NULL"
+        user_units_status_enum status  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    users ||--o{ addresses : "user_id"
+    units ||--o{ business_hours : "unit_id"
+    users ||--o{ refresh_tokens : "user_id"
+    users ||--o{ units : "admin_id"
+    units ||--o{ user_units : "unit_id"
+    users ||--o{ user_units : "user_id"

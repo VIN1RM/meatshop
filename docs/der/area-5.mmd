@@ -1,0 +1,224 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    orders {
+        integer id PK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer delivery_person_id FK "NULL"
+        timestamp order_date  "NOT NULL"
+        orders_status_enum status  "NOT NULL"
+        orders_delivery_status_enum delivery_status  "NULL"
+        orders_delivery_step_enum delivery_step  "NULL"
+        numeric_10_2_ total_amount  "NOT NULL"
+        numeric_10_2_ subtotal  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ delivery_fee  "NOT NULL"
+        text cancellation_reason  "NULL"
+        timestamp cancelled_at  "NULL"
+        orders_cancelled_by_enum cancelled_by  "NULL"
+        integer address_id FK "NULL"
+        integer coupon_id FK "NULL"
+        timestamp scheduled_delivery_date  "NULL"
+        boolean is_scheduled  "NOT NULL"
+        orders_delivery_type_enum delivery_type  "NOT NULL"
+        orders_payment_status_enum payment_status  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_64_ pickup_code_hash  "NULL"
+        varchar_64_ delivery_code_hash  "NULL"
+        timestamp pickup_code_expires_at  "NULL"
+        timestamp delivery_code_expires_at  "NULL"
+        integer pickup_code_attempts  "NOT NULL"
+        integer delivery_code_attempts  "NOT NULL"
+        timestamp pickup_code_locked_until  "NULL"
+        timestamp delivery_code_locked_until  "NULL"
+        timestamp pickup_verified_at  "NULL"
+        timestamp delivery_verified_at  "NULL"
+        uuid checkout_id  "NULL"
+        varchar_255_ delivery_code_ciphertext  "NULL"
+        jsonb destination_snapshot  "NULL"
+        uuid tracking_session_id  "NULL"
+        integer tracking_consent_user_id  "NULL"
+        timestamptz tracking_consent_at  "NULL"
+        timestamptz tracking_revoked_at  "NULL"
+        timestamptz payment_due_at  "NULL"
+        numeric_12_2_ change_for  "NULL"
+        varchar_64_ checkout_request_hash  "NULL"
+    }
+
+    payment_manual_events {
+        uuid id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        integer actor_id FK "NOT NULL"
+        varchar_30_ kind  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_200_ reference  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    payment_notifications {
+        integer id PK "NOT NULL"
+        integer order_id FK "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        timestamptz sent_at  "NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    payment_oauth_states {
+        varchar_64_ state_hash PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        text verifier  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
+    }
+
+    payment_refund_attempts {
+        bigint id PK "NOT NULL"
+        uuid refund_id FK "NOT NULL"
+        uuid attempt_key  "NOT NULL"
+        varchar_80_ provider_id  "NULL"
+        varchar_30_ status  "NOT NULL"
+        integer actor_id FK "NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    payment_refunds {
+        uuid id PK "NOT NULL"
+        varchar_80_ payment_id  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer order_id FK "NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        varchar_255_ reason  "NOT NULL"
+        integer requested_by  "NULL"
+        varchar_80_ provider_id  "NULL"
+        integer attempts  "NOT NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+        uuid attempt_key UK "NOT NULL"
+        integer retry_requested_by FK "NULL"
+    }
+
+    payment_seller_events {
+        bigint id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer actor_id FK "NULL"
+        varchar_30_ kind  "NOT NULL"
+        varchar_80_ collector_id  "NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    payment_sellers {
+        integer unit_id PK,FK "NOT NULL"
+        varchar_80_ collector_id  "NOT NULL"
+        text access_token  "NOT NULL"
+        text refresh_token  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
+        boolean enabled  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    payment_transactions {
+        varchar_80_ id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        varchar_100_ reference  "NOT NULL"
+        varchar_30_ status  "NOT NULL"
+        numeric_12_2_ amount  "NOT NULL"
+        numeric_12_2_ refunded_amount  "NOT NULL"
+        timestamptz provider_updated_at  "NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    payment_webhook_events {
+        bigint id PK "NOT NULL"
+        varchar_40_ payment_id  "NOT NULL"
+        integer unit_id  "NULL"
+        varchar_40_ collector_id  "NULL"
+        varchar_120_ dedupe_key  "NOT NULL"
+        varchar_12_ status  "NOT NULL"
+        integer attempts  "NOT NULL"
+        timestamptz next_attempt_at  "NOT NULL"
+        varchar_255_ last_error  "NULL"
+        timestamptz processed_at  "NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    users ||--o{ payment_manual_events : "actor_id"
+    orders ||--o{ payment_manual_events : "order_id"
+    orders ||--o{ payment_notifications : "order_id"
+    units ||--o{ payment_oauth_states : "unit_id"
+    users ||--o{ payment_oauth_states : "user_id"
+    users o|--o{ payment_refund_attempts : "actor_id"
+    payment_refunds ||--o{ payment_refund_attempts : "refund_id"
+    orders o|--o{ payment_refunds : "order_id"
+    users o|--o{ payment_refunds : "retry_requested_by"
+    units ||--o{ payment_refunds : "unit_id"
+    users o|--o{ payment_seller_events : "actor_id"
+    units ||--o{ payment_seller_events : "unit_id"
+    units ||--o| payment_sellers : "unit_id"
+    units ||--o{ payment_transactions : "unit_id"
+    users |o..o{ payment_refunds : "ref requested_by sem FK"
+    payment_transactions |o..o{ payment_refunds : "ref payment_id sem FK"
+    units |o..o{ payment_webhook_events : "ref unit_id sem FK"
+    payment_transactions |o..o{ payment_webhook_events : "ref payment_id sem FK"

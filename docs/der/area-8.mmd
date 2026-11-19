@@ -1,0 +1,146 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    ai_conversations {
+        uuid id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+        timestamptz expires_at  "NOT NULL"
+    }
+
+    ai_messages {
+        bigint id PK "NOT NULL"
+        uuid conversation_id FK "NOT NULL"
+        varchar_10_ role  "NOT NULL"
+        text content  "NOT NULL"
+        timestamptz created_at  "NOT NULL"
+    }
+
+    ai_rate_limits {
+        integer user_id PK,FK "NOT NULL"
+        timestamptz window_started_at  "NOT NULL"
+        integer request_count  "NOT NULL"
+        timestamptz updated_at  "NOT NULL"
+    }
+
+    audit_logs {
+        integer id PK "NOT NULL"
+        integer user_id FK "NULL"
+        varchar_50_ action  "NOT NULL"
+        varchar_100_ entity  "NOT NULL"
+        varchar_50_ entity_id  "NULL"
+        text old_data  "NULL"
+        text new_data  "NULL"
+        timestamp created_at  "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_20_ actor_type  "NOT NULL"
+        varchar_64_ actor_identifier  "NULL"
+        varchar_255_ description  "NOT NULL"
+        audit_logs_outcome_enum outcome  "NOT NULL"
+        varchar_10_ method  "NULL"
+        varchar_255_ path  "NULL"
+        varchar_64_ correlation_id  "NULL"
+        varchar_64_ ip_address  "NULL"
+        varchar_255_ user_agent  "NULL"
+        integer status_code  "NULL"
+    }
+
+    legal_acceptances {
+        integer id PK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer document_id FK "NOT NULL"
+        integer unit_id FK "NULL"
+        varchar_10_ channel  "NOT NULL"
+        boolean authorized_representative  "NOT NULL"
+        timestamptz accepted_at  "NOT NULL"
+        varchar_10_ event_type  "NOT NULL"
+    }
+
+    legal_documents {
+        integer id PK "NOT NULL"
+        varchar_40_ kind  "NOT NULL"
+        varchar_40_ version  "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text content  "NOT NULL"
+        varchar_64_ content_hash  "NOT NULL"
+        timestamptz published_at  "NOT NULL"
+        boolean is_current  "NOT NULL"
+        boolean is_revocable  "NOT NULL"
+    }
+
+    rate_limit_counters {
+        varchar_160_ key PK "NOT NULL"
+        timestamptz window_started_at  "NOT NULL"
+        integer request_count  "NOT NULL"
+    }
+
+    socket_io_attachments {
+        bigint id UK "NOT NULL"
+        timestamptz created_at  "NULL"
+        bytea payload  "NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    users ||--o{ ai_conversations : "user_id"
+    ai_conversations ||--o{ ai_messages : "conversation_id"
+    users ||--o| ai_rate_limits : "user_id"
+    units o|--o{ audit_logs : "unit_id"
+    users o|--o{ audit_logs : "user_id"
+    legal_documents ||--o{ legal_acceptances : "document_id"
+    units o|--o{ legal_acceptances : "unit_id"
+    users ||--o{ legal_acceptances : "user_id"

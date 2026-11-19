@@ -1,0 +1,90 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    products {
+        integer id PK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        text description  "NULL"
+        numeric_10_2_ price  "NOT NULL"
+        varchar_50_ unit_of_measure  "NOT NULL"
+        boolean active  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer category_id FK "NOT NULL"
+        varchar_100_ brand  "NULL"
+        varchar image_url  "NULL"
+    }
+
+    recipe_ingredients {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        varchar_50_ quantity  "NOT NULL"
+        varchar tip  "NULL"
+    }
+
+    recipe_products {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar_255_ call_to_action  "NOT NULL"
+    }
+
+    recipe_steps {
+        integer id PK "NOT NULL"
+        integer recipe_id FK "NOT NULL"
+        integer step_number  "NOT NULL"
+        text description  "NOT NULL"
+        text tip  "NULL"
+    }
+
+    recipes {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text description  "NULL"
+        varchar image_url  "NULL"
+        varchar video_url  "NULL"
+        varchar_50_ tag  "NULL"
+        boolean active  "NOT NULL"
+        integer display_order  "NOT NULL"
+        timestamp week_start  "NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    recipes ||--o{ recipe_ingredients : "recipe_id"
+    products ||--o{ recipe_products : "product_id"
+    recipes ||--o{ recipe_products : "recipe_id"
+    recipes ||--o{ recipe_steps : "recipe_id"
+    units ||--o{ recipes : "unit_id"

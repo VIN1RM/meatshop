@@ -1,0 +1,240 @@
+---
+config:
+  layout: elk
+  theme: default
+  er:
+    useMaxWidth: false
+---
+erDiagram
+    direction TB
+
+    cart {
+        integer id PK "NOT NULL"
+        integer user_id FK,UK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    cart_items {
+        integer id PK "NOT NULL"
+        integer cart_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        numeric_12_3_ quantity  "NOT NULL"
+        numeric_10_2_ unit_price  "NOT NULL"
+    }
+
+    categories {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_255_ description  "NULL"
+        boolean active  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+    }
+
+    coupon_redemptions {
+        integer id PK "NOT NULL"
+        integer coupon_id FK "NOT NULL"
+        integer user_id FK "NOT NULL"
+        integer order_id FK,UK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        coupon_redemptions_status_enum status  "NOT NULL"
+        timestamp redeemed_at  "NOT NULL"
+        timestamp released_at  "NULL"
+    }
+
+    coupon_units {
+        integer coupon_id PK,FK "NOT NULL"
+        integer unit_id PK,FK "NOT NULL"
+    }
+
+    coupons {
+        integer id PK "NOT NULL"
+        varchar_50_ code UK "NOT NULL"
+        timestamp expires_at  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_120_ name  "NOT NULL"
+        text description  "NULL"
+        coupons_type_enum type  "NOT NULL"
+        integer unit_id FK "NULL"
+        coupons_discount_type_enum discount_type  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ maximum_discount  "NULL"
+        numeric_10_2_ minimum_order_value  "NOT NULL"
+        timestamp starts_at  "NOT NULL"
+        integer total_usage_limit  "NULL"
+        integer usage_limit_per_user  "NULL"
+        integer current_usage_count  "NOT NULL"
+        integer created_by FK "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+    }
+
+    orders {
+        integer id PK "NOT NULL"
+        integer client_id FK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer delivery_person_id FK "NULL"
+        timestamp order_date  "NOT NULL"
+        orders_status_enum status  "NOT NULL"
+        orders_delivery_status_enum delivery_status  "NULL"
+        orders_delivery_step_enum delivery_step  "NULL"
+        numeric_10_2_ total_amount  "NOT NULL"
+        numeric_10_2_ subtotal  "NOT NULL"
+        numeric_10_2_ discount_amount  "NOT NULL"
+        numeric_10_2_ delivery_fee  "NOT NULL"
+        text cancellation_reason  "NULL"
+        timestamp cancelled_at  "NULL"
+        orders_cancelled_by_enum cancelled_by  "NULL"
+        integer address_id FK "NULL"
+        integer coupon_id FK "NULL"
+        timestamp scheduled_delivery_date  "NULL"
+        boolean is_scheduled  "NOT NULL"
+        orders_delivery_type_enum delivery_type  "NOT NULL"
+        orders_payment_status_enum payment_status  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        varchar_64_ pickup_code_hash  "NULL"
+        varchar_64_ delivery_code_hash  "NULL"
+        timestamp pickup_code_expires_at  "NULL"
+        timestamp delivery_code_expires_at  "NULL"
+        integer pickup_code_attempts  "NOT NULL"
+        integer delivery_code_attempts  "NOT NULL"
+        timestamp pickup_code_locked_until  "NULL"
+        timestamp delivery_code_locked_until  "NULL"
+        timestamp pickup_verified_at  "NULL"
+        timestamp delivery_verified_at  "NULL"
+        uuid checkout_id  "NULL"
+        varchar_255_ delivery_code_ciphertext  "NULL"
+        jsonb destination_snapshot  "NULL"
+        uuid tracking_session_id  "NULL"
+        integer tracking_consent_user_id  "NULL"
+        timestamptz tracking_consent_at  "NULL"
+        timestamptz tracking_revoked_at  "NULL"
+        timestamptz payment_due_at  "NULL"
+        numeric_12_2_ change_for  "NULL"
+        varchar_64_ checkout_request_hash  "NULL"
+    }
+
+    product_images {
+        integer id PK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar image_url  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+    }
+
+    products {
+        integer id PK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        text description  "NULL"
+        numeric_10_2_ price  "NOT NULL"
+        varchar_50_ unit_of_measure  "NOT NULL"
+        boolean active  "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer category_id FK "NOT NULL"
+        varchar_100_ brand  "NULL"
+        varchar image_url  "NULL"
+    }
+
+    promotions {
+        integer id PK "NOT NULL"
+        integer unit_id FK "NOT NULL"
+        integer product_id FK "NOT NULL"
+        varchar_150_ title  "NOT NULL"
+        text description  "NULL"
+        numeric_5_2_ discount_percentage  "NULL"
+        numeric_10_2_ promotional_price  "NULL"
+        timestamp starts_at  "NOT NULL"
+        timestamp ends_at  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        integer created_by FK "NOT NULL"
+        timestamptz notification_sent_at  "NULL"
+    }
+
+    sales {
+        integer id PK "NOT NULL"
+        varchar_150_ name  "NOT NULL"
+        varchar_500_ image_url  "NOT NULL"
+        numeric_10_2_ discountValue  "NOT NULL"
+        boolean active  "NOT NULL"
+        timestamp starts_at  "NULL"
+        timestamp ends_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+    }
+
+    stock {
+        integer id PK "NOT NULL"
+        integer product_id FK,UK "NOT NULL"
+        numeric_12_3_ quantity  "NOT NULL"
+        timestamp updated_at  "NOT NULL"
+        numeric_12_3_ min_quantity  "NOT NULL"
+    }
+
+    units {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NOT NULL"
+        varchar_14_ cnpj UK "NOT NULL"
+        varchar_80_ city  "NOT NULL"
+        varchar_10_ zip_code  "NOT NULL"
+        varchar_2_ state  "NOT NULL"
+        integer admin_id FK "NOT NULL"
+        timestamp created_at  "NOT NULL"
+        varchar_150_ street  "NULL"
+        varchar_20_ number  "NULL"
+        varchar_100_ complement  "NULL"
+        varchar_80_ neighborhood  "NULL"
+        numeric_10_7_ latitude  "NULL"
+        numeric_10_7_ longitude  "NULL"
+        varchar image_url  "NULL"
+        varchar cover_url  "NULL"
+        varchar_20_ coordinate_source  "NOT NULL"
+        numeric_7_2_ delivery_radius_km  "NOT NULL"
+        integer scheduling_slot_minutes  "NULL"
+        integer scheduling_capacity  "NULL"
+        jsonb gallery_urls  "NOT NULL"
+        boolean is_active  "NOT NULL"
+    }
+
+    users {
+        integer id PK "NOT NULL"
+        varchar_100_ name  "NULL"
+        varchar email UK "NOT NULL"
+        varchar cpf  "NULL"
+        varchar password_hash  "NULL"
+        users_global_role_enum global_role  "NOT NULL"
+        users_app_profile_enum app_profile  "NULL"
+        integer failed_login_attempts  "NOT NULL"
+        timestamp locked_until  "NULL"
+        boolean email_verified  "NOT NULL"
+        varchar email_verification_token  "NULL"
+        varchar password_reset_token  "NULL"
+        timestamp password_reset_expires_at  "NULL"
+        timestamp created_at  "NOT NULL"
+        varchar avatar_url  "NULL"
+        varchar firebase_uid  "NULL"
+        varchar phone  "NULL"
+        boolean profile_complete  "NOT NULL"
+        boolean is_active  "NOT NULL"
+        varchar_64_ cpf_hash UK "NULL"
+        varchar_64_ phone_hash UK "NULL"
+    }
+
+    users ||--o| cart : "user_id"
+    cart ||--o{ cart_items : "cart_id"
+    products ||--o{ cart_items : "product_id"
+    units ||--o{ categories : "unit_id"
+    coupons ||--o{ coupon_redemptions : "coupon_id"
+    orders ||--o| coupon_redemptions : "order_id"
+    units ||--o{ coupon_redemptions : "unit_id"
+    users ||--o{ coupon_redemptions : "user_id"
+    coupons ||--o{ coupon_units : "coupon_id"
+    units ||--o{ coupon_units : "unit_id"
+    users ||--o{ coupons : "created_by"
+    units o|--o{ coupons : "unit_id"
+    products ||--o{ product_images : "product_id"
+    categories ||--o{ products : "category_id"
+    units ||--o{ products : "unit_id"
+    users ||--o{ promotions : "created_by"
+    products ||--o{ promotions : "product_id"
+    units ||--o{ promotions : "unit_id"
+    products ||--o| stock : "product_id"
