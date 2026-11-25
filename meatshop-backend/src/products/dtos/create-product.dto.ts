@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -45,8 +46,9 @@ export class CreateProductDto {
     description: 'Product sale price',
     example: 89.9,
   })
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
+  @Max(99999999.99)
   price: number;
 
   @ApiProperty({

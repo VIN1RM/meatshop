@@ -8,6 +8,7 @@ import { UnitAuthorizationService } from '../../units/services/unit-authorizatio
 import { User } from '../../users/entities/user.entity';
 import { CreateExpenseDto } from '../dtos/create-expense.dto';
 import { Expense } from '../entities/expense.entity';
+import { expenseValues } from '../utils/expense-values';
 
 @Injectable()
 export class CreateExpenseUseCase {
@@ -33,13 +34,14 @@ export class CreateExpenseUseCase {
       UnitPermission.MANAGE_FINANCE,
     );
 
+    const money = expenseValues(dto);
     const expense = this.expenseRepository.create({
       unit_id: dto.unit_id,
       supplierName: dto.supplierName,
       type: dto.type,
-      amount: dto.amount,
-      discount: dto.discount ?? 0,
-      paidAmount: dto.paidAmount,
+      amount: money.amount,
+      discount: money.discount,
+      paidAmount: money.paidAmount,
       postedAt: dto.postedAt ?? null,
       paidAt: dto.paidAt ?? null,
       paymentMethod: dto.paymentMethod,

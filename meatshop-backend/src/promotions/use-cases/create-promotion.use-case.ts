@@ -8,6 +8,7 @@ import { Unit } from '../../units/entities/unit.entity';
 import { UnitAuthorizationService } from '../../units/services/unit-authorization.service';
 import { User } from '../../users/entities/user.entity';
 import { CreatePromotionDto } from '../dtos/create-promotion.dto';
+import { assertPromotionValues } from '../services/promotion-values';
 import { Promotion } from '../entities/promotion.entity';
 
 @Injectable()
@@ -38,8 +39,9 @@ export class CreatePromotionUseCase {
       unit.id,
       UnitPermission.MANAGE_PRODUCTS,
     );
-    await this.ensureProductBelongsToUnit(dto.product_id, dto.unit_id);
+    const product = await this.ensureProductBelongsToUnit(dto.product_id, dto.unit_id);
     this.assertValidPeriod(dto.starts_at, dto.ends_at);
+    assertPromotionValues(dto.discount_percentage, dto.promotional_price, Number(product.price));
 
     const promotion = this.promotionRepository.create({
       ...dto,
@@ -62,13 +64,14 @@ export class CreatePromotionUseCase {
     return promotion;
   }
 
-  private async ensureProductBelongsToUnit(productId: number, unitId: number): Promise<void> {
+  private async ensureProductBelongsToUnit(productId: number, unitId: number): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id: productId },
     });
     if (!product || product.unit_id !== unitId) {
       throw new NotFoundException('Product not found for this unit');
     }
+    return product;
   }
 
   private assertValidPeriod(startsAt: string, endsAt: string): void {

@@ -23,12 +23,16 @@ export class CouponPolicyService {
   }
 
   calculateDiscount(coupon: Coupon, subtotal: number): number {
+    const subtotalCents = Math.max(0, Math.round(subtotal * 100));
     const raw =
       coupon.discount_type === CouponDiscountType.PERCENTAGE
-        ? subtotal * (Number(coupon.discount_amount) / 100)
-        : Number(coupon.discount_amount);
-    const capped = coupon.maximum_discount ? Math.min(raw, Number(coupon.maximum_discount)) : raw;
-    return Math.min(Number(capped.toFixed(2)), subtotal);
+        ? Math.round((subtotalCents * Math.round(Number(coupon.discount_amount) * 100)) / 10000)
+        : Math.round(Number(coupon.discount_amount) * 100);
+    const capped =
+      coupon.discount_type === CouponDiscountType.PERCENTAGE && coupon.maximum_discount != null
+        ? Math.min(raw, Math.round(Number(coupon.maximum_discount) * 100))
+        : raw;
+    return Math.min(Math.max(0, capped), subtotalCents) / 100;
   }
 
   private assertLifecycle(coupon: Coupon): void {

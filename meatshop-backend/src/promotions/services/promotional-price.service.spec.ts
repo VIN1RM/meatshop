@@ -14,6 +14,11 @@ describe('PromotionalPriceService', () => {
   };
 
   it('uses the explicit promotional price or the percentage discount like the catalog', () => {
+    expect(promotionalUnitPrice(80, { promotional_price: 0, discount_percentage: null })).toBe(0);
+    expect(promotionalUnitPrice(80, { promotional_price: null, discount_percentage: 100 })).toBe(0);
+    expect(promotionalUnitPrice(2.01, { promotional_price: null, discount_percentage: 50 })).toBe(
+      1.01,
+    );
     expect(promotionalUnitPrice(80, { promotional_price: 69.9, discount_percentage: null })).toBe(
       69.9,
     );

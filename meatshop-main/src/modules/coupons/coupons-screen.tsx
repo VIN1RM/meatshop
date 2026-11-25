@@ -14,11 +14,12 @@ import { CouponFormDialog, type CouponFormState } from "./coupon-form-dialog";
 import { useMemo, useState } from "react";
 import { BadgePercent, History, Plus, TicketPercent } from "lucide-react";
 import { apiGet, apiPatch, apiPost } from "@/shared/lib/api";
-import { formatCurrency, formatDate } from "@/shared/lib/formatters";
+import { formatCurrency, formatDate, formatPercentage } from "@/shared/lib/formatters";
 import { toast } from "@/shared/lib/toast";
 import { useManagedUnits } from "@/shared/hooks/use-managed-units";
 import { usePanelAccess } from "@/shared/providers/panel-access-provider";
 import { Button } from "@/shared/components/ui/button";
+import { couponValues } from "./coupon-values";
 import { CouponHistoryDialog } from "./coupon-history-dialog";
 import { SearchField } from "@/shared/components/search-field";
 import { PageHeader } from "@/shared/components/page-header";
@@ -313,7 +314,7 @@ function CouponRow({
       </td>
       <td>
         {coupon.discount_type === "PERCENTAGE"
-          ? `${coupon.discount_amount}%`
+          ? formatPercentage(coupon.discount_amount)
           : formatCurrency(Number(coupon.discount_amount))}
       </td>
       <td>{formatDate(coupon.expires_at)}</td>
@@ -348,36 +349,23 @@ function CouponRow({
 }
 
 function toPayload(form: CouponFormState, isAdmin: boolean, editing: boolean) {
+  const values = couponValues(form);
   return {
-    code: form.code,
-    name: form.name,
+    code: form.code.trim().toUpperCase(),
+    name: form.name.trim(),
     description: form.description || undefined,
     type: isAdmin ? form.type : "UNIT",
     unit_id: form.type === "UNIT" ? Number(form.unit_id) : undefined,
     allowed_unit_ids: form.type === "PLATFORM" ? form.allowed_unit_ids : undefined,
     discount_type: form.discount_type,
-    discount_amount: Number(form.discount_amount),
-    maximum_discount:
-      form.discount_type === "PERCENTAGE"
-        ? form.maximum_discount
-          ? Number(form.maximum_discount)
-          : editing
-            ? null
-            : undefined
-        : undefined,
-    minimum_order_value: Number(form.minimum_order_value || 0),
+    discount_amount: values.discount_amount,
+    maximum_discount: form.discount_type === "PERCENTAGE"
+      ? values.maximum_discount ?? (editing ? null : undefined) : undefined,
+    minimum_order_value: values.minimum_order_value,
     starts_at: datetimeLocalToISO(form.starts_at),
     expires_at: datetimeLocalToISO(form.expires_at),
-    total_usage_limit: form.total_usage_limit
-      ? Number(form.total_usage_limit)
-      : editing
-        ? null
-        : undefined,
-    usage_limit_per_user: form.usage_limit_per_user
-      ? Number(form.usage_limit_per_user)
-      : editing
-        ? null
-        : undefined,
+    total_usage_limit: values.total_usage_limit ?? (editing ? null : undefined),
+    usage_limit_per_user: values.usage_limit_per_user ?? (editing ? null : undefined),
     active: form.active,
   };
 }

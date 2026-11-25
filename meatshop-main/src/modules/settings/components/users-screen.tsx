@@ -138,7 +138,7 @@ function TeamManager() {
           onChange={(event) =>
             setForm((current) => ({ ...current, [key]: key === "cpf" ? maskCPF(event.target.value) : event.target.value }))
           }
-          className="mt-1 w-full"
+          className="input mt-1 pr-10"
           placeholder="Digite uma senha temporária"
           required
         />

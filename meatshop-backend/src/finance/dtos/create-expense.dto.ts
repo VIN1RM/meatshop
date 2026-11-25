@@ -1,4 +1,14 @@
-import { IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsNumber, Length } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsNumber,
+  Min,
+  Max,
+  Length,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaymentMethod } from '../entities/expense.entity';
@@ -45,18 +55,24 @@ export class CreateExpenseDto {
 
   @ApiProperty({ description: 'Total expense amount', example: 1500.5 })
   @Type(() => Number)
-  @IsNumber({}, { message: 'amount must be a valid number' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'amount must be a valid number' })
+  @Min(0.01)
+  @Max(99999999.99)
   amount!: number;
 
   @ApiPropertyOptional({ description: 'Applied discount amount', example: 50 })
   @Type(() => Number)
   @IsOptional()
-  @IsNumber({}, { message: 'discount must be a valid number' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'discount must be a valid number' })
+  @Min(0)
+  @Max(99999999.99)
   discount?: number;
 
   @ApiProperty({ description: 'Amount paid', example: 1450.5 })
   @Type(() => Number)
-  @IsNumber({}, { message: 'paidAmount must be a valid number' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'paidAmount must be a valid number' })
+  @Min(0)
+  @Max(99999999.99)
   paidAmount!: number;
 
   @ApiPropertyOptional({

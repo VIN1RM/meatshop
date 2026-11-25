@@ -5,6 +5,7 @@ import { Unit } from '../../units/entities/unit.entity';
 import { CreateCouponDto } from '../dtos/create-coupon.dto';
 import { CouponDiscountType } from '../enums/coupon-discount-type.enum';
 import { CouponType } from '../enums/coupon-type.enum';
+import { MAX_DISCOUNT_MONEY, validDecimal } from './promotion-values';
 
 @Injectable()
 export class CouponWriteValidatorService {
@@ -13,6 +14,18 @@ export class CouponWriteValidatorService {
   async validate(dto: CreateCouponDto, allowExistingExpiration = false): Promise<void> {
     this.validateDates(dto.starts_at, dto.expires_at, allowExistingExpiration);
     this.validateDiscount(dto.discount_type, dto.discount_amount, dto.maximum_discount);
+    if (!validDecimal(dto.minimum_order_value ?? 0, 0, MAX_DISCOUNT_MONEY))
+      this.fail(
+        'COUPON_INVALID_VALUE',
+        'Informe um pedido mínimo válido, com até duas casas decimais.',
+      );
+    for (const limit of [dto.total_usage_limit, dto.usage_limit_per_user]) {
+      if (limit != null && (!Number.isInteger(limit) || limit < 1 || limit > 2147483647))
+        this.fail(
+          'COUPON_INVALID_LIMIT',
+          'Os limites de uso devem ser quantidades inteiras positivas.',
+        );
+    }
     this.validateScope(dto);
     await this.validateUnits(dto);
   }
@@ -22,13 +35,22 @@ export class CouponWriteValidatorService {
     expiresAt: string,
     allowExistingExpiration: boolean,
   ): void {
-    if (new Date(expiresAt) <= new Date(startsAt))
+    if (
+      !Number.isFinite(Date.parse(startsAt)) ||
+      !Number.isFinite(Date.parse(expiresAt)) ||
+      new Date(expiresAt) <= new Date(startsAt)
+    )
       this.fail('COUPON_INVALID_PERIOD', 'The end date must be after the start date.');
     if (!allowExistingExpiration && new Date(expiresAt) <= new Date())
       this.fail('COUPON_EXPIRATION_IN_PAST', 'The coupon expiration date must be in the future.');
   }
 
   private validateDiscount(type: CouponDiscountType, amount: number, maximum?: number): void {
+    if (
+      !validDecimal(amount, 0.01, MAX_DISCOUNT_MONEY) ||
+      (maximum != null && !validDecimal(maximum, 0.01, MAX_DISCOUNT_MONEY))
+    )
+      this.fail('COUPON_INVALID_VALUE', 'Informe valores positivos com até duas casas decimais.');
     if (type === CouponDiscountType.PERCENTAGE && amount > 100)
       this.fail('COUPON_INVALID_PERCENTAGE', 'The percentage must not exceed 100%.');
     if (type === CouponDiscountType.FIXED && maximum !== undefined)

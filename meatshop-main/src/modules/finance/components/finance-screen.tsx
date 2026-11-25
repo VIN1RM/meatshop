@@ -1,4 +1,6 @@
 "use client"
+import { decimalValue } from "@/shared/lib/decimal-input";
+import { ApiError } from "@/shared/lib/api-error-translations";
 import { expenseTypeLabel, expensePaymentLabel } from '../utils/expense-labels';
 import { ReportExportDialog } from '@/shared/components/exports/report-export-dialog';
 
@@ -122,9 +124,7 @@ function parseCurrencyToNumber(formatted: string) {
 function parseLocalizedCurrency(formatted: string) {
   if (!formatted) return 0
   const raw = formatted.replace(/\s/g, "").replace("R$", "").trim()
-  const normalized = raw.replace(/\./g, "").replace(",", ".")
-  const n = Number(normalized)
-  return Number.isFinite(n) ? n : 0
+  return decimalValue(raw, 'Valor')
 }
 function roundMoney(value: number) {
   return Number((value || 0).toFixed(2))
@@ -291,7 +291,8 @@ export function FinanceScreen() {
     try {
       const amount = parseLocalizedCurrency(form.amount)
       const discount = parseLocalizedCurrency(form.discount)
-      const paidAmount = Math.max(amount - discount, 0)
+      if (amount <= 0 || discount > amount) throw new Error('Informe um valor positivo e um desconto que não ultrapasse o valor da despesa.');
+      const paidAmount = roundMoney(amount - discount)
 
       const payload = {
         unit_id: unitId,
@@ -325,7 +326,7 @@ export function FinanceScreen() {
       setEditingId(null)
       setOpen(false)
     } catch (err) {
-      console.error("Failed to save expense:", err)
+      if (!(err instanceof ApiError)) toast.error(err instanceof Error ? err.message : 'Não foi possível salvar a despesa.')
     } finally {
       setSaving(false)
     }
@@ -585,7 +586,7 @@ export function FinanceScreen() {
 
                       <div className="md:col-span-3">
                         <label htmlFor="field-finance-screen-20672" className="text-sm font-medium text-gray-700 mb-1">
-                          Desconto
+                          Desconto (R$)
                         </label>
                         <Input id="field-finance-screen-20672"
                           name="discount"

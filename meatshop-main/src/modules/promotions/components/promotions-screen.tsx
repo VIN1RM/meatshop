@@ -1,5 +1,7 @@
 "use client";
 
+import { promotionValues } from "../promotion-values";
+import { formatPercentage } from "@/shared/lib/formatters";
 import { toDatetimeLocal, datetimeLocalToISO, validateDateRange } from "@/shared/lib/date-time";
 import { formatDateTime as formatDateTimeBR } from "@/shared/lib/formatters";
 
@@ -148,14 +150,11 @@ export function PromotionsScreen() {
     setFormError(null);
 
     try {
-      const clearValue = editingId ? null : undefined;
+      const discount = promotionValues(form);
       const payload = {
         title: form.title.trim(),
         description: form.description.trim() || undefined,
-        discount_percentage:
-          form.discountMode === "percentage" ? Number(form.discount_percentage) : clearValue,
-        promotional_price:
-          form.discountMode === "price" ? Number(form.promotional_price) : clearValue,
+        ...discount,
         starts_at: datetimeLocalToISO(form.starts_at),
         ends_at: datetimeLocalToISO(form.ends_at),
       };
@@ -210,7 +209,7 @@ export function PromotionsScreen() {
               style: "currency",
               currency: "BRL",
             })
-          : `${row.discount_percentage}%`,
+          : formatPercentage(row.discount_percentage ?? 0),
     },
     {
       id: "period",

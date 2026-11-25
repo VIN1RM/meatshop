@@ -28,6 +28,26 @@ describe('CouponPolicyService', () => {
       service.validate(base, { userId: 1, unitId: 2, subtotal: 100 }, manager),
     ).resolves.toBe(15);
   });
+  it('rounds half cents consistently and never discounts more than the subtotal', () => {
+    expect(
+      service.calculateDiscount({ ...base, discount_amount: 50, maximum_discount: null }, 2.01),
+    ).toBe(1.01);
+    expect(
+      service.calculateDiscount(
+        {
+          ...base,
+          discount_type: CouponDiscountType.FIXED,
+          discount_amount: 100,
+          maximum_discount: null,
+        },
+        15.75,
+      ),
+    ).toBe(15.75);
+    expect(
+      service.calculateDiscount({ ...base, discount_amount: 100, maximum_discount: null }, 15.75),
+    ).toBe(15.75);
+    expect(service.calculateDiscount(base, 0)).toBe(0);
+  });
 
   it('rejects an order below the minimum', async () => {
     await expect(

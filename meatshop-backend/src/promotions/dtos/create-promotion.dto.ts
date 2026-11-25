@@ -9,7 +9,6 @@ import {
   Max,
   MaxLength,
   Min,
-  ValidateIf,
 } from 'class-validator';
 
 export class CreatePromotionDto {
@@ -51,12 +50,9 @@ export class CreatePromotionDto {
       'Discount percentage applied to the product (required when promotional_price is not provided)',
     example: 20,
   })
-  @ValidateIf((dto) => dto.promotional_price === undefined)
-  @IsNotEmpty({
-    message: 'Either discount_percentage or promotional_price is required',
-  })
-  @IsNumber()
-  @Min(0)
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0.01)
   @Max(100)
   discount_percentage?: number;
 
@@ -64,12 +60,10 @@ export class CreatePromotionDto {
     description: 'Product promotional price (required when discount_percentage is not provided)',
     example: 47.92,
   })
-  @ValidateIf((dto) => dto.discount_percentage === undefined)
-  @IsNotEmpty({
-    message: 'Either discount_percentage or promotional_price is required',
-  })
-  @IsNumber()
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
+  @Max(99999999.99)
   promotional_price?: number;
 
   @ApiProperty({

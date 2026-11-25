@@ -9,6 +9,16 @@ type ApiErrorPayload = {
 const SECONDS_PER_MINUTE = 60;
 
 const ERROR_CODE_MESSAGES: Record<string, string> = {
+  EXPENSE_INVALID_VALUES: "Confira os valores da despesa: desconto e pagamento não podem superar o valor devido.",
+  PROMOTION_INVALID_DISCOUNT: "Escolha somente percentual de desconto ou preço final promocional.",
+  PROMOTION_INVALID_PERCENTAGE: "Informe um desconto de 0,01% a 100%, com até duas casas decimais.",
+  PROMOTION_INVALID_PRICE: "Informe um preço promocional válido, com até duas casas decimais.",
+  PROMOTION_PRICE_TOO_HIGH: "O preço promocional não pode superar o preço original do produto.",
+  COUPON_INVALID_PERCENTAGE: "O percentual do cupom deve ser de 0,01% a 100%.",
+  COUPON_INVALID_VALUE: "Informe valores válidos para o cupom, com até duas casas decimais.",
+  COUPON_INVALID_LIMIT: "Os limites de uso devem ser quantidades inteiras positivas.",
+  COUPON_MAXIMUM_NOT_ALLOWED: "O teto de desconto é exclusivo dos cupons percentuais.",
+  COUPON_EXPIRATION_IN_PAST: "O término da validade do cupom deve estar no futuro.",
   PROFILE_INCOMPLETE: "Complete seu perfil para continuar usando o painel.",
   PHONE_ALREADY_EXISTS: "Este telefone já está vinculado a outra conta. Informe seu telefone pessoal.",
   STOCK_CHANGED: "O estoque mudou enquanto você editava. Atualize a página antes de ajustar a quantidade.",

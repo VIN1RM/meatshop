@@ -1,4 +1,5 @@
 "use client"
+import { decimalValue } from "@/shared/lib/decimal-input";
 
 import { Button } from "@/shared/components/ui/button";
 import { PageHeader } from "@/shared/components/page-header";
@@ -19,7 +20,7 @@ type Product = {
   id: number
   name: string
   description: string | null
-  price: number
+  price: number | string
   unit_of_measure: string
   active: boolean
   unit_id: number
@@ -109,7 +110,7 @@ export function EditProductScreen() {
       await apiPatch(`/products/${product.id}`, {
         name: product.name,
         description: product.description?.trim() || null,
-        price: Number(product.price),
+        price: decimalValue(String(product.price), "Preço do produto", 0.01),
         unit_of_measure: product.unit_of_measure,
         active: product.active,
         category_id: product.category_id,
@@ -297,13 +298,11 @@ export function EditProductScreen() {
             <div className="flex flex-col">
               <label htmlFor="field-edit-product-screen-10582" className="text-xs text-gray-600 mb-1">VALOR DO PRODUTO<RequiredMark /></label>
               <input id="field-edit-product-screen-10582"
-                type="number"
-                min={0.01}
-                step="0.01"
-                value={Number(product.price)}
+                type="text"
+                value={product.price}
                 inputMode="decimal"
                 lang="pt-BR"
-                onChange={(e) => handleChange("price", parseFloat(e.target.value) || 0)}
+                onChange={(e) => handleChange("price", e.target.value)}
                 className="input"
                 placeholder="Ex.: 89,90"
                 required

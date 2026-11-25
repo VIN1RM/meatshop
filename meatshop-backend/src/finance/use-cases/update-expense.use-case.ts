@@ -8,6 +8,7 @@ import { UnitAuthorizationService } from '../../units/services/unit-authorizatio
 import { User } from '../../users/entities/user.entity';
 import { UpdateExpenseDto } from '../dtos/update-expense.dto';
 import { Expense } from '../entities/expense.entity';
+import { expenseValues } from '../utils/expense-values';
 
 @Injectable()
 export class UpdateExpenseUseCase {
@@ -37,7 +38,7 @@ export class UpdateExpenseUseCase {
       );
     }
 
-    Object.assign(expense, dto);
+    Object.assign(expense, dto, expenseValues({ ...expense, ...dto }));
     const updated = await this.expenseRepository.save(expense);
 
     this.logger.warn('Expense updated', {

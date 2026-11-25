@@ -130,10 +130,8 @@ export function PromotionFormDialog({
           <FormField label="Desconto (%)" required className="sm:col-span-2">
             <Input
               required
-              type="number"
-              min="0.01"
-              max="100"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={form.discount_percentage}
               onChange={(event) => update("discount_percentage", event.target.value)}
               placeholder="Ex.: 20"
@@ -143,9 +141,8 @@ export function PromotionFormDialog({
           <FormField label="Preço promocional (R$)" required className="sm:col-span-2">
             <Input
               required
-              type="number"
-              min="0.01"
-              step="0.01"
+              type="text"
+              inputMode="decimal"
               value={form.promotional_price}
               onChange={(event) => update("promotional_price", event.target.value)}
               placeholder="Ex.: 69,90"

@@ -187,6 +187,7 @@ export function CouponFormDialog({
             onChange={(event) => {
               update("discount_type", event.target.value as DiscountType);
               update("maximum_discount", "");
+              update("discount_amount", "");
             }}
             className="input"
           >
@@ -200,10 +201,8 @@ export function CouponFormDialog({
         >
           <Input
             required
-            type="number"
-            min="0.01"
-            max={form.discount_type === "PERCENTAGE" ? 100 : undefined}
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             value={form.discount_amount}
             onChange={(event) => update("discount_amount", event.target.value)}
             placeholder={form.discount_type === "PERCENTAGE" ? "Ex.: 10" : "Ex.: 15,00"}
@@ -212,9 +211,8 @@ export function CouponFormDialog({
         {form.discount_type === "PERCENTAGE" && (
           <Field label="Teto do desconto (R$)">
             <Input
-              type="number"
-              min="0.01"
-              step="0.01"
+              type="text"
+            inputMode="decimal"
               value={form.maximum_discount}
               onChange={(event) => update("maximum_discount", event.target.value)}
             />
@@ -222,9 +220,8 @@ export function CouponFormDialog({
         )}
         <Field label="Pedido mínimo (R$)">
           <Input
-            type="number"
-            min="0"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             value={form.minimum_order_value}
             onChange={(event) => update("minimum_order_value", event.target.value)}
           />

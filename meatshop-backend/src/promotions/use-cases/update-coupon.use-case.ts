@@ -32,6 +32,22 @@ export class UpdateCouponUseCase {
         message: 'Coupon not found.',
       });
     await this.access.assertCanManage(coupon, actor);
+    for (const field of [
+      'name',
+      'type',
+      'discount_type',
+      'discount_amount',
+      'minimum_order_value',
+      'starts_at',
+      'expires_at',
+      'active',
+    ] as const) {
+      if (dto[field] === null)
+        throw new BadRequestException({
+          code: 'COUPON_INVALID_VALUE',
+          message: 'Os campos obrigatórios do cupom não podem ser nulos.',
+        });
+    }
     this.assertActorCanChangeScope(coupon, dto, actor);
     this.assertImmutableScope(coupon, dto);
     const merged = this.mergeForValidation(coupon, dto);

@@ -1,4 +1,5 @@
 "use client"
+import { parseDecimalInput, MAX_MONEY } from "@/shared/lib/decimal-input";
 
 import { Button } from "@/shared/components/ui/button";
 import { PageHeader } from "@/shared/components/page-header";
@@ -85,8 +86,13 @@ export function NewProductScreen() {
   }
 
   const handleSave = async () => {
-    if (!form.name.trim() || !form.category_id || Number(form.price) <= 0) {
+    const price = parseDecimalInput(form.price);
+    if (!form.name.trim() || !form.category_id) {
       setError("Preencha pelo menos o nome, categoria e valor do produto.")
+      return
+    }
+    if (price === null || price <= 0 || price > MAX_MONEY) {
+      setError("Informe um preço positivo com até duas casas decimais, por exemplo 89,90.")
       return
     }
     if (!unitId) {
@@ -101,7 +107,7 @@ export function NewProductScreen() {
         unit_id: unitId,
         name: form.name,
         description: form.description.trim() || undefined,
-        price: Number(form.price),
+        price,
         unit_of_measure: form.unit_of_measure,
         brand: form.brand || undefined,
         category_id: form.category_id,
@@ -270,11 +276,9 @@ export function NewProductScreen() {
           <fieldset className="rounded-xl border border-slate-200 px-3 py-2">
             <legend id="legend-new-product-screen-9904" className="px-1 text-sm font-medium text-slate-600">Preço do produto<RequiredMark /></legend>
             <input aria-labelledby="legend-new-product-screen-9904"
-              type="number"
+              type="text"
               inputMode="decimal"
               lang="pt-BR"
-              min={0.01}
-              step="0.01"
               value={form.price}
               onChange={(e) => handleChange("price", e.target.value)}
               className="input"

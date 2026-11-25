@@ -20,6 +20,11 @@ export function formatCurrency(value: number | string | null | undefined) {
   return currencyFormatter.format(Number(value ?? 0));
 }
 
+export function formatPercentage(value: number | string) {
+  const percentage = Number(value);
+  return Number.isFinite(percentage) ? `${percentage.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : '—';
+}
+
 export function formatDate(value: string | null | undefined) {
   return formatDateValue(value);
 }

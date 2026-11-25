@@ -4,8 +4,6 @@ import { EntityManager, In, LessThanOrEqual, MoreThanOrEqual, Repository } from 
 import type { CartItem } from '../../cart/entities/cart-item.entity';
 import { Promotion } from '../entities/promotion.entity';
 
-const FULL_PERCENTAGE = 100;
-
 export interface IPricedProduct {
   id: number;
   price: number | string;
@@ -14,12 +12,15 @@ export interface IPricedProduct {
 type PromotionDiscount = Pick<Promotion, 'promotional_price' | 'discount_percentage'>;
 
 export function promotionalUnitPrice(basePrice: number, promotion: PromotionDiscount): number {
-  const explicitPrice = Number(promotion.promotional_price ?? 0);
-  const discountedPrice =
-    explicitPrice > 0
-      ? explicitPrice
-      : basePrice * (1 - Number(promotion.discount_percentage ?? 0) / FULL_PERCENTAGE);
-  return Number(Math.max(0, discountedPrice).toFixed(2));
+  const baseCents = Math.round(basePrice * 100);
+  const discountedCents =
+    promotion.promotional_price != null
+      ? Math.round(Number(promotion.promotional_price) * 100)
+      : Math.round(
+          (baseCents * (10000 - Math.round(Number(promotion.discount_percentage ?? 0) * 100))) /
+            10000,
+        );
+  return Math.min(baseCents, Math.max(0, discountedCents)) / 100;
 }
 
 @Injectable()

@@ -28,7 +28,7 @@ export class ValidateCouponUseCase {
     return {
       coupon,
       discount_amount: discountAmount,
-      total_after_discount: Math.max(0, subtotal - discountAmount),
+      total_after_discount: Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100),
     };
   }
 }

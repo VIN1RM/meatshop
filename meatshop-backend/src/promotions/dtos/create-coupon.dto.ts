@@ -12,6 +12,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -61,22 +62,25 @@ export class CreateCouponDto {
 
   @ApiProperty({ example: 10 })
   @Type(() => Number)
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
+  @Max(99999999.99)
   discount_amount: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
+  @Max(99999999.99)
   maximum_discount?: number;
 
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
+  @Max(99999999.99)
   minimum_order_value?: number;
 
   @ApiProperty() @IsDateString() starts_at: string;
@@ -86,6 +90,7 @@ export class CreateCouponDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(2147483647)
   total_usage_limit?: number;
 
   @ApiPropertyOptional()
@@ -93,6 +98,7 @@ export class CreateCouponDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(2147483647)
   usage_limit_per_user?: number;
 
   @ApiPropertyOptional({ default: true })

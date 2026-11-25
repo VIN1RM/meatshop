@@ -5,6 +5,7 @@ import { UnitPermission } from '../../common/enums/unit-permission.enum';
 import { UnitAuthorizationService } from '../../units/services/unit-authorization.service';
 import { User } from '../../users/entities/user.entity';
 import { UpdatePromotionDto } from '../dtos/update-promotion.dto';
+import { assertPromotionValues } from '../services/promotion-values';
 import { Promotion } from '../entities/promotion.entity';
 
 @Injectable()
@@ -24,6 +25,7 @@ export class UpdatePromotionUseCase {
   ): Promise<Promotion> {
     const promotion = await this.promotionRepository.findOne({
       where: { id: promotionId },
+      relations: ['product'],
     });
     if (!promotion) {
       throw new NotFoundException('Promotion not found');
@@ -41,7 +43,25 @@ export class UpdatePromotionUseCase {
       throw new BadRequestException('ends_at must be after starts_at');
     }
 
-    Object.assign(promotion, dto, { starts_at: startsAt, ends_at: endsAt });
+    const percentage =
+      dto.discount_percentage !== undefined
+        ? dto.discount_percentage
+        : dto.promotional_price != null
+          ? null
+          : promotion.discount_percentage;
+    const price =
+      dto.promotional_price !== undefined
+        ? dto.promotional_price
+        : dto.discount_percentage != null
+          ? null
+          : promotion.promotional_price;
+    assertPromotionValues(percentage, price, Number(promotion.product?.price));
+    Object.assign(promotion, dto, {
+      starts_at: startsAt,
+      ends_at: endsAt,
+      discount_percentage: percentage,
+      promotional_price: price,
+    });
     await this.promotionRepository.save(promotion);
 
     this.logger.log(`Promotion ${promotion.id} updated by user ${currentUser.id}`);
