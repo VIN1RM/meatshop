@@ -1,3 +1,4 @@
+import { businessDateKey } from '../finance/utils/month-range.util';
 import { Injectable } from '@nestjs/common';
 import { ExcelReportRenderer } from './renderers/excel-report.renderer';
 import { PdfReportRenderer } from './renderers/pdf-report.renderer';
@@ -30,7 +31,7 @@ export class ReportFileService {
     return {
       buffer,
       mime: REPORT_MIME[format],
-      filename: `meatshop-${name}-${report.generatedAt.toISOString().slice(0, 10)}.${format}`,
+      filename: `meatshop-${name}-${businessDateKey(report.generatedAt)}.${format}`,
     };
   }
 }

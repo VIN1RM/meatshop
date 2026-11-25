@@ -30,7 +30,7 @@ export class PersonalDataRetentionService {
     };
   }
 
-  @Cron('0 15 3 * * *', { waitForCompletion: true })
+  @Cron('0 15 3 * * *', { waitForCompletion: true, timeZone: 'America/Sao_Paulo' })
   async run(): Promise<void> {
     await this.db.transaction(async (manager) => {
       const [lock] = await manager.query(

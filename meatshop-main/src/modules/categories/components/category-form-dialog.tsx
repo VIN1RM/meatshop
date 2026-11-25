@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
+import { CATEGORY_GROUPS, type CategoryGroup } from "../category-groups";
 import { Tags } from "lucide-react";
 import {
   FormActiveToggle,
@@ -11,7 +12,12 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
 
-export type CategoryFormState = { name: string; description: string; active: boolean };
+export type CategoryFormState = {
+  name: string;
+  description: string;
+  active: boolean;
+  group: CategoryGroup | "";
+};
 
 export function CategoryFormDialog({
   open,
@@ -56,6 +62,26 @@ export function CategoryFormDialog({
             onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
             placeholder="Ex.: Cortes bovinos"
           />
+        </FormField>
+        <FormField
+          label="Grupo de cortes"
+          required
+          className="sm:col-span-2"
+          hint="Define em qual seção do aplicativo os produtos aparecem. O nome da categoria pode ser personalizado."
+        >
+          <select
+            required
+            value={form.group}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, group: event.target.value as CategoryGroup }))
+            }
+            className="input"
+          >
+            <option value="" disabled>Selecione um grupo</option>
+            {Object.entries(CATEGORY_GROUPS).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
         </FormField>
         <FormField
           label="Descrição (opcional)"

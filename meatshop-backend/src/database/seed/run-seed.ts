@@ -1,3 +1,4 @@
+import '../../config/business-time';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../app.module';
 

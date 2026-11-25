@@ -14,7 +14,7 @@ import { CouponFormDialog, type CouponFormState } from "./coupon-form-dialog";
 import { useMemo, useState } from "react";
 import { BadgePercent, History, Plus, TicketPercent } from "lucide-react";
 import { apiGet, apiPatch, apiPost } from "@/shared/lib/api";
-import { formatCurrency } from "@/shared/lib/formatters";
+import { formatCurrency, formatDate } from "@/shared/lib/formatters";
 import { toast } from "@/shared/lib/toast";
 import { useManagedUnits } from "@/shared/hooks/use-managed-units";
 import { usePanelAccess } from "@/shared/providers/panel-access-provider";
@@ -316,7 +316,7 @@ function CouponRow({
           ? `${coupon.discount_amount}%`
           : formatCurrency(Number(coupon.discount_amount))}
       </td>
-      <td>{new Date(coupon.expires_at).toLocaleDateString("pt-BR")}</td>
+      <td>{formatDate(coupon.expires_at)}</td>
       <td>
         {coupon.current_usage_count}
         {coupon.total_usage_limit ? ` / ${coupon.total_usage_limit}` : ""}

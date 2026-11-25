@@ -12,7 +12,7 @@ import { apiPatch } from "@/shared/lib/api"
 import { orderStatusLabel, DELIVERY_TYPE_LABELS } from "@/modules/orders/utils/status-labels"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { DataPagination } from "@/shared/components/data-pagination"
-import { formatCurrency, formatDate } from "@/shared/lib/formatters"
+import { formatCurrency, formatDateTime } from "@/shared/lib/formatters"
 import { toast } from "@/shared/lib/toast"
 
 interface Filters {
@@ -111,8 +111,8 @@ export function OrdersTable({ filters, currentPage, onPageChange }: OrdersTableP
               <tr key={o.id}>
                 <td className="font-semibold text-slate-900">#{o.id}</td>
                 <td>{o.client_name ?? `Cliente #${o.client_id}`}</td>
-                <td className="whitespace-nowrap">{formatDate(o.order_date)}</td>
-                <td className="whitespace-nowrap">{formatDate(o.scheduled_delivery_date)}</td>
+                <td className="whitespace-nowrap">{formatDateTime(o.order_date)}</td>
+                <td className="whitespace-nowrap">{formatDateTime(o.scheduled_delivery_date)}</td>
                 <td>
                   <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                     {orderStatusLabel(o.status, o.delivery_type)}

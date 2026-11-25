@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Unit } from '../../units/entities/unit.entity';
+import { CategoryGroup } from '../category-group';
 
 @Entity('categories')
 export class Category {
@@ -8,6 +9,9 @@ export class Category {
 
   @Column({ type: 'varchar', length: 100 })
   name: string;
+
+  @Column({ type: 'varchar', length: 16, default: CategoryGroup.OTHER })
+  group: CategoryGroup;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   description: string | null;

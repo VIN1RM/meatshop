@@ -169,7 +169,10 @@ const APP_ENTITIES = [
           synchronize: config.get<string>('DB_SYNCHRONIZE') === 'true',
           ...(dbType === 'postgres'
             ? {
-                extra: { max: Number(config.get<string>('DB_POOL_MAX', '10')) },
+                extra: {
+                  max: Number(config.get<string>('DB_POOL_MAX', '10')),
+                  options: '-c timezone=America/Sao_Paulo',
+                },
                 ssl:
                   config.get<string>('DB_SSL') === 'true' ? { rejectUnauthorized: false } : false,
               }

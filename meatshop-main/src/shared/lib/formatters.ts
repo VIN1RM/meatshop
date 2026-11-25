@@ -40,6 +40,10 @@ export function formatQuantity(value: number | string | null | undefined, unit?:
   return symbol ? `${formatted} ${symbol}` : formatted;
 }
 
+export function formatTime(value: string | null | undefined) {
+  return formatDateValue(value, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+}
+
 export function formatDateTime(value: string | null | undefined) {
   return formatDateValue(value, { dateStyle: 'short', timeStyle: 'short' });
 }

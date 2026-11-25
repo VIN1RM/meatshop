@@ -16,7 +16,10 @@ import { PageHeader } from "@/shared/components/page-header";
 
 import { toast } from "@/shared/lib/toast";
 
+import { CATEGORY_GROUPS, type CategoryGroup } from "../category-groups";
+
 type Category = {
+  group: CategoryGroup;
   id: number;
   name: string;
   description: string | null;
@@ -24,7 +27,7 @@ type Category = {
   unit_id: number;
 };
 
-const EMPTY_FORM: CategoryFormState = { name: "", description: "", active: true };
+const EMPTY_FORM: CategoryFormState = { name: "", description: "", active: true, group: "" };
 
 export function CategoriesScreen() {
   const { units, unitId, loading: unitsLoading } = useManagedUnits();
@@ -54,6 +57,7 @@ export function CategoriesScreen() {
     setEditingId(category.id);
     setForm({
       name: category.name,
+      group: category.group ?? "OTHER",
       description: category.description ?? "",
       active: category.active,
     });
@@ -67,6 +71,10 @@ export function CategoriesScreen() {
       setFormError("Informe o nome da categoria.");
       return;
     }
+    if (!form.group) {
+      setFormError("Selecione o grupo de cortes da categoria.");
+      return;
+    }
     if (!unitId) {
       setFormError("Nenhuma unidade selecionada.");
       return;
@@ -77,7 +85,8 @@ export function CategoriesScreen() {
 
     try {
       const payload = {
-        name: form.name,
+        name: form.name.trim(),
+        group: form.group,
         description: form.description || undefined,
         active: form.active,
       };
@@ -113,6 +122,7 @@ export function CategoriesScreen() {
   };
 
   const columns: TableColumn<Category>[] = [
+    { id: "group", header: "Grupo de cortes", accessor: (row) => CATEGORY_GROUPS[row.group] ?? "Outros" },
     { id: "name", header: "Nome", accessor: "name", className: "font-medium" },
     {
       id: "description",

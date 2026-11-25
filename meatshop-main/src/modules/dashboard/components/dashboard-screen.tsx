@@ -1,4 +1,5 @@
 'use client'
+import { formatTime } from "@/shared/lib/formatters";
 
 import { toDateInput } from "@/shared/lib/date-time";
 
@@ -205,7 +206,7 @@ export function DashboardScreen() {
                   <span className="shrink-0 text-right">
                     <strong className="block text-sm text-slate-800">{formatCurrency(order.value)}</strong>
                     <time className="text-xs text-slate-500">
-                      {new Date(order.order_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      {formatTime(order.order_date)}
                     </time>
                   </span>
                 </Link>

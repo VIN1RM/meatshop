@@ -18,7 +18,7 @@ export class AiRetentionService {
     private readonly metrics: MetricsService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'America/Sao_Paulo' })
   async purgeExpired(): Promise<void> {
     const now = new Date();
     const conversations = await this.conversations.delete({

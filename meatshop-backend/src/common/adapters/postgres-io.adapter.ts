@@ -21,6 +21,7 @@ export class PostgresIoAdapter extends IoAdapter {
       database: options.database as string,
       ssl: options.ssl as PoolConfig['ssl'],
       max: 5,
+      options: '-c timezone=America/Sao_Paulo',
     });
     this.pool.on('error', () =>
       process.stderr.write('Shared realtime database connection failed\n'),

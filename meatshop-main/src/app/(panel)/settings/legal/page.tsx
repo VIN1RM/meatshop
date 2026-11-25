@@ -1,4 +1,5 @@
 'use client';
+import { formatDateTime } from "@/shared/lib/formatters";
 
 import { FileCheck2, History, ArrowUpRight } from 'lucide-react';
 import { LegalDocumentDialog, LegalDocuments } from '@/shared/components/legal/legal-documents';
@@ -70,7 +71,7 @@ function LegalHistoryList({
           <div className="min-w-0">
             <p className="font-semibold text-slate-900">{record.title}</p>
             <p className="mt-1 text-sm text-slate-500">
-              Versão {record.version} · {new Date(record.accepted_at).toLocaleString('pt-BR')}
+              Versão {record.version} · {formatDateTime(record.accepted_at)}
               {record.unit_id ? ` · Unidade ${record.unit_id}` : ''}
             </p>
           </div>

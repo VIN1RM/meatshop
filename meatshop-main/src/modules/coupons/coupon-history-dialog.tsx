@@ -1,4 +1,5 @@
 "use client";
+import { formatDateTime } from "@/shared/lib/formatters";
 import { History } from "lucide-react";
 import { DetailsDialog } from "@/shared/components/details-dialog";
 import { formatCurrency } from "@/shared/lib/formatters";
@@ -36,7 +37,7 @@ export function CouponHistoryDialog({
               ) : (
                 data.items.map((item) => (
                   <tr key={item.id}>
-                    <td>{new Date(item.redeemed_at).toLocaleString("pt-BR")}</td>
+                    <td>{formatDateTime(item.redeemed_at)}</td>
                     <td>{item.user?.name ?? "Não identificado"}</td>
                     <td>{item.unit?.name ?? "Não identificada"}</td>
                     <td>#{item.order_id}</td>

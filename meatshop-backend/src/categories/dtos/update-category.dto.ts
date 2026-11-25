@@ -3,4 +3,5 @@ import { CreateCategoryDto } from './create-category.dto';
 
 export class UpdateCategoryDto extends PartialType(
   OmitType(CreateCategoryDto, ['unit_id'] as const),
+  { skipNullProperties: false },
 ) {}

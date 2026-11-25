@@ -1,3 +1,4 @@
+import '../config/business-time';
 import { LegalDocument } from '../legal/entities/legal-document.entity';
 import { LegalAcceptance } from '../legal/entities/legal-acceptance.entity';
 import * as dotenv from 'dotenv';
@@ -112,6 +113,7 @@ export default new DataSource({
       ],
   migrations: [`${__dirname}/migrations/*.{ts,js}`],
   synchronize: false,
+  extra: { options: '-c timezone=America/Sao_Paulo' },
   logging: process.env.NODE_ENV !== 'production',
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });

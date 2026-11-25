@@ -1,3 +1,4 @@
+import './config/business-time';
 import { PostgresIoAdapter } from './common/adapters/postgres-io.adapter';
 import type { Request, Response, NextFunction } from 'express';
 import { NestFactory } from '@nestjs/core';

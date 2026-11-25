@@ -7,6 +7,7 @@ import { UnitAuthorizationService } from '../../units/services/unit-authorizatio
 import { User } from '../../users/entities/user.entity';
 import { CreateCategoryDto } from '../dtos/create-category.dto';
 import { Category } from '../entities/category.entity';
+import { inferCategoryGroup } from '../category-group';
 
 @Injectable()
 export class CreateCategoryUseCase {
@@ -34,7 +35,10 @@ export class CreateCategoryUseCase {
       UnitPermission.MANAGE_CATEGORIES,
     );
 
-    const category = this.categoryRepository.create(dto);
+    const category = this.categoryRepository.create({
+      ...dto,
+      group: dto.group ?? inferCategoryGroup(dto.name),
+    });
     await this.categoryRepository.save(category);
 
     this.logger.log(`Category ${category.id} created by user ${currentUser.id}`);

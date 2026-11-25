@@ -1,7 +1,25 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateIf,
+} from 'class-validator';
+import { CategoryGroup } from '../category-group';
 
 export class CreateCategoryDto {
+  @ApiPropertyOptional({
+    enum: CategoryGroup,
+    description: 'Stable marketplace group, independent of the category name',
+  })
+  @ValidateIf((_, value) => value !== undefined)
+  @IsEnum(CategoryGroup)
+  group?: CategoryGroup;
+
   @ApiProperty({
     description: 'Category name',
     example: 'Beef',

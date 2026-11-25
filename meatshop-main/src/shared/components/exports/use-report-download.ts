@@ -1,4 +1,5 @@
 'use client';
+import { toDateInput } from "@/shared/lib/date-time";
 import { useEffect, useRef, useState } from 'react';
 import { requestReport } from './report-request';
 import { getErrorMessage } from '@/shared/lib/api-error-translations';
@@ -22,7 +23,7 @@ export function useReportDownload() {
       if (request.signal.aborted) return;
       saveBlob(
         file,
-        `meatshop-${kind}-unidade-${unitId}-${new Date().toISOString().slice(0, 10)}.${format}`,
+        `meatshop-${kind}-unidade-${unitId}-${toDateInput(new Date())}.${format}`,
       );
       toast.success('Seu arquivo está pronto. Download iniciado.');
     } catch (failure) {
