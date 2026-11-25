@@ -10,13 +10,14 @@ describe('Catalog form dialogs', () => {
   it('creates a category through its labelled form', () => {
     cy.intercept('GET', 'http://localhost:3001/categories/manage*', page([]));
     cy.intercept('POST', 'http://localhost:3001/categories', req => {
-      expect(req.body).to.include({ name: 'Cortes especiais', unit_id: 1, active: true });
+      expect(req.body).to.include({ name: 'Cortes especiais', group: 'BEEF', unit_id: 1, active: true });
       req.reply({ id: 2, ...req.body });
     }).as('createCategory');
     cy.visit('/categories');
     cy.contains('button', 'Nova categoria').click();
     cy.get('[role="dialog"]').within(() => {
       cy.get('input[placeholder="Ex.: Cortes bovinos"]').should('be.focused').type('Cortes especiais');
+      cy.contains('label', 'Grupo de cortes').find('select').select('BEEF');
       cy.screenshot('category-dialog-desktop');
       cy.contains('button', 'Criar categoria').click();
     });
@@ -42,6 +43,21 @@ describe('Catalog form dialogs', () => {
     cy.contains('button', 'Nova categoria').click();
     cy.get('[role="dialog"]').contains('button', 'Criar categoria').click();
     cy.get('[role="dialog"] input[required]').should('be.focused').then(input => expect(input[0].validity.valueMissing).to.eq(true));
+  });
+
+  it('requires a cut group before submitting a named category', () => {
+    cy.intercept('POST', 'http://localhost:3001/categories', { id: 2 }).as('createCategory');
+    cy.visit('/categories');
+    cy.contains('button', 'Nova categoria').click();
+    cy.get('[role="dialog"]').within(() => {
+      cy.get('input[placeholder="Ex.: Cortes bovinos"]').type('Cortes especiais');
+      cy.contains('button', 'Criar categoria').click();
+      cy.contains('label', 'Grupo de cortes').find('select').should('be.focused').then(select => {
+        expect(select[0].value).to.eq('');
+        expect(select[0].validity.valueMissing).to.eq(true);
+      });
+    });
+    cy.get('@createCategory.all').should('have.length', 0);
   });
 
   function openCoupon() {
