@@ -9,8 +9,8 @@ jest.mock('next/navigation', () => ({ usePathname: () => '/products', useRouter:
 jest.mock('@/shared/lib/api', () => ({ apiGet: jest.fn() }));
 
 function Probe() {
-  const { unitId, setUnitId } = usePanelAccess();
-  return <div><span data-testid="unit">{unitId}</span><button onClick={() => setUnitId(7)}>Trocar</button><button onClick={() => setUnitId(6)}>Mesma unidade</button><button onClick={() => setUnitId(999)}>Sem acesso</button></div>;
+  const { unitId, setUnitId, user } = usePanelAccess();
+  return <div><span data-testid="profile">{String(user?.profile_complete)}</span><span data-testid="unit">{unitId}</span><button onClick={() => setUnitId(7)}>Trocar</button><button onClick={() => setUnitId(6)}>Mesma unidade</button><button onClick={() => setUnitId(999)}>Sem acesso</button></div>;
 }
 
 describe('Unit switching', () => {
@@ -64,5 +64,14 @@ describe('Unit switching', () => {
     await act(async () => root.render(<PanelAccessProvider><Probe /></PanelAccessProvider>));
     expect(container.querySelector('[data-testid="unit"]')?.textContent).toBe('');
     expect(localStorage.getItem('meatshop:selected-unit-id')).toBeNull();
+  });
+  it('opens completion on an API block and restores the server profile after refresh', async () => {
+    jest.mocked(apiGet).mockResolvedValue({ user: { id: 1, name: 'Integrante', profile_complete: true }, panel: { can_access: true, memberships: [{ unit_id: 6, permissions: ['MANAGE_PRODUCTS'] }] } });
+    await act(async () => root.render(<PanelAccessProvider><Probe /></PanelAccessProvider>));
+    expect(container.querySelector('[data-testid="profile"]')?.textContent).toBe('true');
+    await act(async () => window.dispatchEvent(new Event('profile:required')));
+    expect(container.querySelector('[data-testid="profile"]')?.textContent).toBe('false');
+    await act(async () => window.dispatchEvent(new Event('currentUserUpdated')));
+    expect(container.querySelector('[data-testid="profile"]')?.textContent).toBe('true');
   });
 });

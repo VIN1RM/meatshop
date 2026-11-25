@@ -1,6 +1,7 @@
 "use client"
 
 import { toDateInput } from "@/shared/lib/date-time";
+import { RecipeDetailsDialog } from './recipe-details-dialog';
 
 import { useServerList } from "@/shared/hooks/use-server-list";
 import { DataPagination } from "@/shared/components/data-pagination";
@@ -58,6 +59,7 @@ export function RecipesScreen() {
   const loading = query.isPending;
   const error = query.error?.message;
   const [removing, setRemoving] = useState<Recipe | null>(null);
+  const [selected, setSelected] = useState<Recipe | null>(null);
   const [confirmingRemoval, setConfirmingRemoval] = useState(false);
 
   const confirmRemove = async () => {
@@ -120,7 +122,7 @@ export function RecipesScreen() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {recipes.map((recipe) => (
-              <Card key={recipe.id} className="overflow-hidden border-0 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <Card key={recipe.id} className="relative overflow-hidden border-0 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="h-36 w-full bg-gray-200">
                   {recipe.image_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -151,7 +153,7 @@ export function RecipesScreen() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-4 flex justify-end gap-3 text-sm">
+                  <div className="relative z-10 mt-4 flex justify-end gap-3 text-sm">
                     <Link href={`/recipes/${recipe.id}`} className="font-semibold text-red-600 hover:underline">
                       Editar
                     </Link>
@@ -160,6 +162,7 @@ export function RecipesScreen() {
                     </button>
                   </div>
                 </CardContent>
+                <button type="button" aria-label={`Ver detalhes de ${recipe.title}`} onClick={() => setSelected(recipe)} className="absolute inset-0 cursor-pointer rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-600" />
               </Card>
             ))}
           </div>
@@ -167,6 +170,7 @@ export function RecipesScreen() {
       </div>
 
       <DataPagination {...query.pagination} isLoading={loading} />
+      {selected && selected.unit_id === unitId && <RecipeDetailsDialog key={selected.id} recipeId={selected.id} onClose={() => setSelected(null)} />}
       <Dialog open={Boolean(removing)} onOpenChange={(nextOpen) => !nextOpen && setRemoving(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>

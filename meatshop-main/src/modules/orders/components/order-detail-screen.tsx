@@ -15,6 +15,7 @@ import { ArrowLeft, MessageSquare } from "lucide-react"
 import { apiPatch } from "@/shared/lib/api"
 import {
   DELIVERY_TYPE_LABELS,
+  ORDER_STATUS_COLORS,
   orderStatusLabel,
   deliveryStatusLabel,
   cancellationReasonLabel,
@@ -174,7 +175,7 @@ export function OrderDetailScreen({ orderId }: OrderDetailScreenProps) {
           Voltar aos pedidos
         </Link>
         <PageHeader eyebrow="Pedidos" title={`Pedido #${order.id}`} />
-        <span className="mt-2 mb-6 inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-semibold text-red-700">
+        <span className={`mt-2 mb-6 inline-flex rounded-full px-3 py-1 text-sm font-semibold ring-1 ring-inset ${ORDER_STATUS_COLORS[order.status] ?? "bg-slate-100 text-slate-700 ring-slate-200"}`}>
           {orderStatusLabel(order.status, order.delivery_type)}
         </span>
 

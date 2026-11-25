@@ -59,6 +59,23 @@ describe('All application pages and their access guards', () => {
     expect(container.querySelector('[data-private]')).toBeNull();
     expect(replace).not.toHaveBeenCalled();
   });
+  it('requires profile completion before mounting private screens or selecting a unit', async () => {
+    access({ user: { id: 1, name: 'Novo integrante', email: 'novo@example.com', cpf: '52998224725', profile_complete: false }, panel: { can_access: true, memberships: [{ unit_id: 1 }, { unit_id: 2 }] } });
+    await render('/orders');
+    expect(container.querySelector('[data-private]')).toBeNull();
+    expect(container.textContent).toContain('Complete seu perfil');
+    expect(replace).not.toHaveBeenCalled();
+  });
+  it('restores access when the refreshed profile is complete', async () => {
+    const panel = { can_access: true, memberships: [{ unit_id: 1 }] };
+    const selectedMembership = { unit_id: 1, permissions: ['MANAGE_ORDERS'] };
+    access({ user: { id: 1, profile_complete: false }, panel, selectedMembership });
+    await render('/orders');
+    expect(container.querySelector('[data-private]')).toBeNull();
+    access({ user: { id: 1, profile_complete: true }, panel, selectedMembership });
+    await render('/orders');
+    expect(container.querySelector('[data-private]')).not.toBeNull();
+  });
   it('requires a unit choice before rendering a multi-unit operation', async () => {
     access({ user: { id: 1, global_role: 'USER' }, panel: { can_access: true, memberships: [{ unit_id: 1 }, { unit_id: 2 }] } });
     await render('/orders');

@@ -25,3 +25,9 @@ export const accountSchema = z.object({
 });
 
 export type AccountInput = z.input<typeof accountSchema>;
+
+export const completeProfileSchema = z.object({
+  name: validationSchemas.name.transform(value => value.trim()),
+  cpf: validationSchemas.cpf.transform(value => rules.normalizeCPF(value)),
+  phone: validationSchemas.phone.transform(value => value.replace(/\D/g, '')),
+});

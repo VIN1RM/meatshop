@@ -8,6 +8,16 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Cancelado",
 };
 
+export const ORDER_STATUS_COLORS: Record<string, string> = {
+  PENDING: "bg-amber-100 text-amber-800 ring-amber-200",
+  CONFIRMED: "bg-blue-100 text-blue-800 ring-blue-200",
+  PREPARING: "bg-orange-100 text-orange-800 ring-orange-200",
+  READY: "bg-teal-100 text-teal-800 ring-teal-200",
+  OUT_FOR_DELIVERY: "bg-violet-100 text-violet-800 ring-violet-200",
+  DELIVERED: "bg-emerald-100 text-emerald-800 ring-emerald-200",
+  CANCELLED: "bg-red-100 text-red-800 ring-red-200",
+};
+
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   PENDING: "Pendente",
   PAID: "Pago",

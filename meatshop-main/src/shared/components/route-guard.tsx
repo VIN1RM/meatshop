@@ -9,6 +9,7 @@ import {
 import { LoadingOverlay } from "@/shared/components/loading-overlay";
 import { usePanelAccess } from "@/shared/providers/panel-access-provider";
 import { UNIT_SELECTION_ROUTE } from '@/shared/auth/unit-selection';
+import { CompleteProfileScreen } from '@/modules/auth/components/complete-profile-screen';
 
 type RouteGuardProps = {
   children: React.ReactNode;
@@ -30,6 +31,7 @@ export function RouteGuard({ children }: RouteGuardProps) {
   const redirectTo = useMemo(() => {
     if (publicRoute || !initialized || loading) return null;
     if (!user) return "/login";
+    if (user.profile_complete === false) return null;
     if (pathname !== UNIT_SELECTION_ROUTE && panel?.can_access && panel.memberships.length > 1 && !selectedMembership) return UNIT_SELECTION_ROUTE;
 
     const requiredPermissions = getRoutePermissions(pathname);
@@ -82,6 +84,10 @@ export function RouteGuard({ children }: RouteGuardProps) {
 
   if (!initialized || loading) {
     return <LoadingOverlay title="Carregando..." />;
+  }
+
+  if (user?.profile_complete === false) {
+    return <CompleteProfileScreen key={user.id} />;
   }
 
   if (redirectTo) {

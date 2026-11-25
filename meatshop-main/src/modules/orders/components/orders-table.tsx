@@ -9,7 +9,7 @@ import { DataSkeleton } from "@/shared/components/data-skeleton";
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { apiPatch } from "@/shared/lib/api"
-import { orderStatusLabel, DELIVERY_TYPE_LABELS } from "@/modules/orders/utils/status-labels"
+import { orderStatusLabel, DELIVERY_TYPE_LABELS, ORDER_STATUS_COLORS } from "@/modules/orders/utils/status-labels"
 import { Spinner } from "@/shared/components/ui/spinner"
 import { DataPagination } from "@/shared/components/data-pagination"
 import { formatCurrency, formatDateTime } from "@/shared/lib/formatters"
@@ -114,7 +114,7 @@ export function OrdersTable({ filters, currentPage, onPageChange }: OrdersTableP
                 <td className="whitespace-nowrap">{formatDateTime(o.order_date)}</td>
                 <td className="whitespace-nowrap">{formatDateTime(o.scheduled_delivery_date)}</td>
                 <td>
-                  <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                  <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${ORDER_STATUS_COLORS[o.status] ?? "bg-slate-100 text-slate-700 ring-slate-200"}`}>
                     {orderStatusLabel(o.status, o.delivery_type)}
                   </span>
                 </td>

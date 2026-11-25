@@ -9,6 +9,8 @@ type ApiErrorPayload = {
 const SECONDS_PER_MINUTE = 60;
 
 const ERROR_CODE_MESSAGES: Record<string, string> = {
+  PROFILE_INCOMPLETE: "Complete seu perfil para continuar usando o painel.",
+  PHONE_ALREADY_EXISTS: "Este telefone já está vinculado a outra conta. Informe seu telefone pessoal.",
   STOCK_CHANGED: "O estoque mudou enquanto você editava. Atualize a página antes de ajustar a quantidade.",
   UNIT_LOCATION_CONFIRMATION_REQUIRED: "A unidade precisa confirmar sua localização no mapa para oferecer entrega. Entre em contato com o açougue ou escolha retirada no balcão.",
   PICKUP_PAYMENT_REQUIRED: "Registre o recebimento do pagamento antes de confirmar a retirada.",

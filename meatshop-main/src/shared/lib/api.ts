@@ -87,6 +87,11 @@ async function invalidateAfterMutation(path: string) {
 function reportRequestError(error: unknown, options: RequestOptions): never {
   if (error instanceof Error && error.name === "AbortError") throw error;
 
+  if (error instanceof ApiError && (error.payload as { code?: string } | undefined)?.code === 'PROFILE_INCOMPLETE') {
+    window.dispatchEvent(new Event('profile:required'));
+    throw error;
+  }
+
   const message =
     error instanceof ApiError
       ? error.message

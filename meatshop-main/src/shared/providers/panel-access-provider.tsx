@@ -107,8 +107,15 @@ export function PanelAccessProvider({ children }: { children: React.ReactNode })
       setInitialized(true);
       setLoading(false);
     }
+    function handleProfileRequired() {
+      setUser(current => current ? { ...current, profile_complete: false } : current);
+    }
     window.addEventListener("auth:session-expired", handleSessionExpired);
-    return () => window.removeEventListener("auth:session-expired", handleSessionExpired);
+    window.addEventListener('profile:required', handleProfileRequired);
+    return () => {
+      window.removeEventListener("auth:session-expired", handleSessionExpired);
+      window.removeEventListener('profile:required', handleProfileRequired);
+    };
   }, []);
 
   useEffect(() => {
