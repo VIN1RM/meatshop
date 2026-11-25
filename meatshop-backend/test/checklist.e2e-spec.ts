@@ -249,9 +249,11 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
   });
 
   it('returns the remaining login lock in JSON and Retry-After, then unlocks', async () => {
-    await db.query("UPDATE users SET locked_until=now()+interval '10 minutes' WHERE id=$1", [
-      user.id,
-    ]);
+    // Match application writes for timestamp-without-time-zone columns, even when
+    // PostgreSQL uses Brasilia time and the Node process runs in UTC on CI.
+    await db.getRepository(User).update(user.id, {
+      locked_until: new Date(Date.now() + 10 * 60_000),
+    });
     const blocked = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: user.email, password: 'Password123!' })
@@ -260,9 +262,9 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
     expect(blocked.body.retry_after_seconds).toBeGreaterThan(590);
     expect(Number(blocked.headers['retry-after'])).toBe(blocked.body.retry_after_seconds);
     expect(new Date(blocked.body.locked_until).getTime()).toBeGreaterThan(Date.now());
-    await db.query("UPDATE users SET locked_until=now()-interval '1 minute' WHERE id=$1", [
-      user.id,
-    ]);
+    await db.getRepository(User).update(user.id, {
+      locked_until: new Date(Date.now() - 60_000),
+    });
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({ email: user.email, password: 'Password123!' })
@@ -773,10 +775,10 @@ const enabled = process.env.E2E_TEST_DATABASE === 'meatshop_gaps_test_330';
     await expect(sessions.rotate(beforeChange.refresh_token)).rejects.toThrow();
     const beforeReset = await sessions.issue(user);
     const resetToken = randomUUID();
-    await db.query(
-      "UPDATE users SET password_reset_token=$2,password_reset_expires_at=now()+interval '5 minutes' WHERE id=$1",
-      [user.id, resetToken],
-    );
+    await db.getRepository(User).update(user.id, {
+      password_reset_token: resetToken,
+      password_reset_expires_at: new Date(Date.now() + 5 * 60_000),
+    });
     await request(app.getHttpServer())
       .post('/auth/reset-password')
       .send({ token: resetToken, new_password: 'ResetPassword123!' })

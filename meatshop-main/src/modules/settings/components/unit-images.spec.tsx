@@ -39,8 +39,15 @@ describe('Unit image management', () => {
   });
   it('removes the precise stored image rather than a mutable index', async () => {
     await act(async () => root.render(<UnitImages unitId={6} gallery={['/uploads/units/photo.png']} onSaved={saved} />));
-    await act(async () => container.querySelector('button')!.click());
+    await act(async () => container.querySelector<HTMLButtonElement>('button[aria-label="Remover foto 1"]')!.click());
     expect(apiDelete).toHaveBeenCalledWith('/units/6/images?url=%2Fuploads%2Funits%2Fphoto.png');
     expect(saved).toHaveBeenCalledTimes(1);
+  });
+  it('opens the image preview without removing the stored photo', async () => {
+    await act(async () => root.render(<UnitImages unitId={6} gallery={['/uploads/units/photo.png']} onSaved={saved} />));
+    await act(async () => container.querySelector<HTMLButtonElement>('button[aria-label="Ampliar foto 1 da unidade"]')!.click());
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(apiDelete).not.toHaveBeenCalled();
+    expect(saved).not.toHaveBeenCalled();
   });
 });
